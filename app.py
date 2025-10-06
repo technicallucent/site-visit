@@ -506,4 +506,5 @@ if __name__ == '__main__':
         print("Agent: jane@realestate.com / agent123")
         print("Agent: mike@realestate.com / agent123")
     
-    app.run(debug=True,port=4554)
+
+    app.run(debug=True)
