@@ -35,7 +35,20 @@ class Client(db.Model):
     notes = db.Column(db.Text)
     created_by = db.Column(db.Integer, db.ForeignKey('user.id'))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+# Add to your models.py
+class Location(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False, unique=True)
+    description = db.Column(db.Text)
+    is_active = db.Column(db.Boolean, default=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_by = db.Column(db.Integer, db.ForeignKey('user.id'))
 
+    # Update Client model to use location IDs instead of text
+    # preferred_location_id = db.Column(db.Integer, db.ForeignKey('location.id'))
+    # current_location_id = db.Column(db.Integer, db.ForeignKey('location.id'))
+    
+    # Or keep as text but add relationship for suggestions
 class SiteVisit(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     client_id = db.Column(db.Integer, db.ForeignKey('client.id'), nullable=False)

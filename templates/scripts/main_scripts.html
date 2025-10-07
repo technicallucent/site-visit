@@ -1,0 +1,25 @@
+
+
+<script>
+// Initialize Select2 after jQuery is loaded
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize Select2 for existing elements
+    $('.select2').select2({
+        placeholder: "Select options",
+        allowClear: true,
+        width: '100%'
+    });
+    
+    // Initialize Select2 for visit agents
+    $('select[name="visits[0][agents_involved]"]').select2({
+        placeholder: "Select agents",
+        allowClear: true,
+        width: '100%'
+    });
+});
+</script>
+
+<!-- Load your custom scripts -->
+<script src="{{ url_for('static', filename='js/mobile_verification.js') }}"></script>
+<script src="{{ url_for('static', filename='js/multiple_visits.js') }}"></script>
+<script src="{{ url_for('static', filename='js/form_submission.js') }}"></script>

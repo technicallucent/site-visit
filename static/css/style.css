@@ -93,7 +93,7 @@
     text-decoration: none;
 }
   .card-body{
-    background-color: #c7c7c79a;
+    background-color: #ffffff9a;
   }
 /* Responsive adjustments */
 @media (max-width: 768px) {
@@ -133,8 +133,8 @@ color: #000;
 }
 .nav-btn .btn-outline-primary,.btn-success{
 border: white 1px solid !important;
-background-color: #000;
-color: white;
+background-color: #60a3fb;
+color: rgb(0, 0, 0);
 }
 
 .bg-primary{
@@ -143,7 +143,7 @@ color: white;
 }
 body{
       height: 100vh;
-background: linear-gradient(135deg, #79797a, #667575);
+background: linear-gradient(135deg, #e3e5e7, #f1f5f9);
 
 }
 @media (max-width: 900px) {
@@ -158,4 +158,7 @@ background: linear-gradient(135deg, #79797a, #667575);
     margin-top: 15px;
    border-left: 3px solid rgb(100, 100, 100);
    padding-left: 5px;
+}
+.navbar{
+    background-color: #19418f;
 }

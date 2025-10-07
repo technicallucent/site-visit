@@ -6,12 +6,12 @@
     <!-- Filters Card -->
     <div class="row mb-4">
         <div class="col">
+            <div class="">
+                <h5 class="mb-0  text-black p-3">
+                    <i class="fas fa-filter me-2 text-black"></i>Filter Visit Logs
+                </h5>
+            </div>
             <div class="card">
-                <div class="card-header bg-dark">
-                    <h5 class="card-title mb-0  text-white">
-                        <i class="fas fa-filter me-2 text-white"></i>Filter Visit Logs
-                    </h5>
-                </div>
                 <div class="card-body">
                     <div class="row g-3">
                         <div class="col-md-3">
@@ -54,15 +54,21 @@
         </div>
     </div>
 
-
+<div>      <a
+                            href="{{ url_for('log_visit') }}"
+                            class="btn {% if current_page == 'log_visit' %}btn-primary{% else %}btn-success{% endif %}"
+                          >
+                            <i class="fas fa-plus me-2"></i>Add New Site Visit
+                          </a></div>
+                          <br>
     <!-- Visit Logs Table -->
     <div class="row">
         <div class="col">
+            <div class=" d-flex justify-content-between align-items-center p-3">
+                <h5 class=" mb-0 text-black">All Visit Logs</h5>
+                <span class="badge bg-dark" id="visitCount">Loading...</span>
+            </div>
             <div class="card">
-                <div class="card-header bg-dark d-flex justify-content-between align-items-center">
-                    <h5 class="card-title mb-0 text-white">All Visit Logs</h5>
-                    <span class="badge bg-dark" id="visitCount">Loading...</span>
-                </div>
                 <div class="card-body">
                     <div class="table-responsive">
                         <table class="table table-hover">

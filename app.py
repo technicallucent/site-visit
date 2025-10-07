@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, jsonify, flash, redirect, url_for
 from flask_login import LoginManager, login_required, current_user, login_user, logout_user
 from werkzeug.security import check_password_hash, generate_password_hash
-from models import db, User, Project, Client, SiteVisit
+from models import db, User, Project, Client, SiteVisit,Location
 from datetime import datetime
 import json
 from flask_sqlalchemy import SQLAlchemy
@@ -290,16 +290,109 @@ def log_visit():
     projects = Project.query.all()
     users = User.query.filter_by(role='agent').all()
     return render_template('log_visit.html', projects=projects, users=users)
-@app.route('/save-visit', methods=['POST'])
+# @app.route('/save-visit', methods=['POST'])
+# @login_required
+# def save_visit():
+#     try:
+#         data = request.get_json()
+#         print("Received data:", data)  # Debug print
+        
+#         # Validate required fields
+#         if not data.get('name') or not data.get('mobile') or not data.get('visit_date') or not data.get('project_id'):
+#             return jsonify({'success': False, 'message': 'Missing required fields'})
+        
+#         # Check if client exists
+#         client = Client.query.filter_by(mobile=data['mobile']).first()
+        
+#         if not client:
+#             # Create new client
+#             client = Client(
+#                 name=data['name'],
+#                 mobile=data['mobile'],
+#                 email=data.get('email', ''),
+#                 secondary_number=data.get('secondary_number', ''),
+#                 lead_source=data.get('lead_source', ''),
+#                 lead_source_project=data.get('lead_source_project', ''),
+#                 bhk_requirement=data.get('bhk_requirement', ''),
+#                 budget=data.get('budget', ''),
+#                 preferred_location=data.get('preferred_location', ''),
+#                 current_location=data.get('current_location', ''),
+#                 building_name=data.get('building_name', ''),
+#                 preferred_projects=json.dumps(data.get('preferred_projects', [])),
+#                 notes=data.get('notes', ''),
+#                 created_by=current_user.id
+#             )
+#             db.session.add(client)
+#             db.session.flush()  # Get the client ID without committing
+#         else:
+#             # Update existing client
+#             client.name = data['name']
+#             client.email = data.get('email', '')
+#             client.secondary_number = data.get('secondary_number', '')
+#             client.lead_source = data.get('lead_source', '')
+#             client.lead_source_project = data.get('lead_source_project', '')
+#             client.bhk_requirement = data.get('bhk_requirement', '')
+#             client.budget = data.get('budget', '')
+#             client.preferred_location = data.get('preferred_location', '')
+#             client.current_location = data.get('current_location', '')
+#             client.building_name = data.get('building_name', '')
+#             client.preferred_projects = json.dumps(data.get('preferred_projects', []))
+#             client.notes = data.get('notes', '')
+        
+#         # Process agents involved
+#         agents_involved = data.get('agents_involved', [])
+#         if isinstance(agents_involved, str):
+#             agents_involved = [agents_involved] if agents_involved else []
+        
+#         # Ensure current user is included
+#         if str(current_user.id) not in agents_involved:
+#             agents_involved.append(str(current_user.id))
+        
+#         # Process telecallers
+#         telecallers = data.get('telecallers_involved', '')
+#         if telecallers:
+#             telecallers_list = [t.strip() for t in telecallers.split(',') if t.strip()]
+#         else:
+#             telecallers_list = []
+        
+#         # Create site visit
+#         visit = SiteVisit(
+#             client_id=client.id,
+#             visit_date=datetime.strptime(data['visit_date'], '%Y-%m-%d'),
+#             project_id=int(data['project_id']),
+#             agents_involved=json.dumps(agents_involved),
+#             telecallers_involved=json.dumps(telecallers_list),
+#             notes=data.get('visit_notes', ''),
+#             created_by=current_user.id
+#         )
+        
+#         db.session.add(visit)
+#         db.session.commit()
+        
+#         return jsonify({'success': True, 'message': 'Site visit logged successfully'})
+    
+#     except Exception as e:
+#         db.session.rollback()
+#         print("Error saving visit:", str(e))  # Debug print
+#         return jsonify({'success': False, 'message': f'Error: {str(e)}'})
+@app.route('/save-visits', methods=['POST'])
 @login_required
-def save_visit():
+def save_visits():
     try:
         data = request.get_json()
-        print("Received data:", data)  # Debug print
+        print("Received data for multiple visits:", data)  # Debug print
         
         # Validate required fields
-        if not data.get('name') or not data.get('mobile') or not data.get('visit_date') or not data.get('project_id'):
-            return jsonify({'success': False, 'message': 'Missing required fields'})
+        if not data.get('name') or not data.get('mobile'):
+            return jsonify({'success': False, 'message': 'Missing client name or mobile'})
+        
+        if not data.get('visits') or len(data.get('visits', [])) == 0:
+            return jsonify({'success': False, 'message': 'No site visits provided'})
+        
+        # Validate each visit
+        for i, visit_data in enumerate(data['visits']):
+            if not visit_data.get('visit_date') or not visit_data.get('project_id'):
+                return jsonify({'success': False, 'message': f'Visit #{i+1} missing required fields (date or project)'})
         
         # Check if client exists
         client = Client.query.filter_by(mobile=data['mobile']).first()
@@ -324,6 +417,7 @@ def save_visit():
             )
             db.session.add(client)
             db.session.flush()  # Get the client ID without committing
+            print(f"Created new client with ID: {client.id}")
         else:
             # Update existing client
             client.name = data['name']
@@ -338,44 +432,58 @@ def save_visit():
             client.building_name = data.get('building_name', '')
             client.preferred_projects = json.dumps(data.get('preferred_projects', []))
             client.notes = data.get('notes', '')
+            print(f"Updated existing client with ID: {client.id}")
         
-        # Process agents involved
-        agents_involved = data.get('agents_involved', [])
-        if isinstance(agents_involved, str):
-            agents_involved = [agents_involved] if agents_involved else []
+        # Process and save all visits
+        saved_visits = []
+        for i, visit_data in enumerate(data['visits']):
+            # Process agents involved for this visit
+            agents_involved = visit_data.get('agents_involved', [])
+            if isinstance(agents_involved, str):
+                agents_involved = [agents_involved] if agents_involved else []
+            
+            # Ensure current user is included in agents
+            if str(current_user.id) not in agents_involved:
+                agents_involved.append(str(current_user.id))
+            
+            # Process telecallers for this visit
+            telecallers = visit_data.get('telecallers_involved', '')
+            if telecallers:
+                telecallers_list = [t.strip() for t in telecallers.split(',') if t.strip()]
+            else:
+                telecallers_list = []
+            
+            # Create site visit
+            visit = SiteVisit(
+                client_id=client.id,
+                visit_date=datetime.strptime(visit_data['visit_date'], '%Y-%m-%d'),
+                project_id=int(visit_data['project_id']),
+                agents_involved=json.dumps(agents_involved),
+                telecallers_involved=json.dumps(telecallers_list),
+                notes=visit_data.get('visit_notes', ''),
+                created_by=current_user.id
+            )
+            
+            db.session.add(visit)
+            saved_visits.append(visit)
+            print(f"Created visit #{i+1} for project ID: {visit_data['project_id']}")
         
-        # Ensure current user is included
-        if str(current_user.id) not in agents_involved:
-            agents_involved.append(str(current_user.id))
-        
-        # Process telecallers
-        telecallers = data.get('telecallers_involved', '')
-        if telecallers:
-            telecallers_list = [t.strip() for t in telecallers.split(',') if t.strip()]
-        else:
-            telecallers_list = []
-        
-        # Create site visit
-        visit = SiteVisit(
-            client_id=client.id,
-            visit_date=datetime.strptime(data['visit_date'], '%Y-%m-%d'),
-            project_id=int(data['project_id']),
-            agents_involved=json.dumps(agents_involved),
-            telecallers_involved=json.dumps(telecallers_list),
-            notes=data.get('visit_notes', ''),
-            created_by=current_user.id
-        )
-        
-        db.session.add(visit)
+        # Commit all changes
         db.session.commit()
         
-        return jsonify({'success': True, 'message': 'Site visit logged successfully'})
+        return jsonify({
+            'success': True, 
+            'message': f'Successfully logged {len(saved_visits)} site visit(s) for client {client.name}',
+            'client_id': client.id,
+            'visits_count': len(saved_visits)
+        })
     
     except Exception as e:
         db.session.rollback()
-        print("Error saving visit:", str(e))  # Debug print
+        print("Error saving visits:", str(e))
+        import traceback
+        traceback.print_exc()  # Print full traceback for debugging
         return jsonify({'success': False, 'message': f'Error: {str(e)}'})
-
 @app.route('/user-management')
 @login_required
 def user_management():
@@ -448,7 +556,94 @@ def add_project():
     except Exception as e:
         db.session.rollback()
         return jsonify({'success': False, 'message': str(e)})
+# routes/locations.py or add to your main routes file
+@app.route('/locations')
+@login_required
+def locations_management():
+    locations = Location.query.filter_by(is_active=True).order_by(Location.name).all()
+    return render_template('locations.html', locations=locations)
 
+@app.route('/locations/create', methods=['POST'])
+@login_required
+def create_location():
+    try:
+        data = request.get_json()
+        name = data.get('name', '').strip()
+        description = data.get('description', '').strip()
+        
+        if not name:
+            return jsonify({'success': False, 'message': 'Location name is required'})
+        
+        # Check if location already exists
+        existing_location = Location.query.filter(
+            db.func.lower(Location.name) == db.func.lower(name),
+            Location.is_active == True
+        ).first()
+        
+        if existing_location:
+            return jsonify({'success': False, 'message': 'Location already exists'})
+        
+        # Create new location
+        location = Location(
+            name=name,
+            description=description,
+            created_by=current_user.id
+        )
+        
+        db.session.add(location)
+        db.session.commit()
+        
+        return jsonify({
+            'success': True, 
+            'message': 'Location created successfully',
+            'location': {
+                'id': location.id,
+                'name': location.name,
+                'description': location.description
+            }
+        })
+        
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'message': f'Error: {str(e)}'})
+
+@app.route('/locations/<int:location_id>/delete', methods=['POST'])
+@login_required
+def delete_location(location_id):
+    try:
+        location = Location.query.get_or_404(location_id)
+        
+        # Check if location is being used in any client records
+        preferred_location_clients = Client.query.filter(
+            Client.preferred_location == location.name
+        ).count()
+        
+        current_location_clients = Client.query.filter(
+            Client.current_location == location.name
+        ).count()
+        
+        if preferred_location_clients > 0 or current_location_clients > 0:
+            return jsonify({
+                'success': False, 
+                'message': f'Cannot delete location. It is being used by {preferred_location_clients + current_location_clients} client(s).'
+            })
+        
+        # Soft delete by setting is_active to False
+        location.is_active = False
+        db.session.commit()
+        
+        return jsonify({'success': True, 'message': 'Location deleted successfully'})
+        
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'message': f'Error: {str(e)}'})
+
+@app.route('/api/locations')
+@login_required
+def get_locations_api():
+    locations = Location.query.filter_by(is_active=True).order_by(Location.name).all()
+    locations_list = [{'id': loc.id, 'name': loc.name} for loc in locations]
+    return jsonify(locations_list)
 # Custom filter for templates
 @app.template_filter('from_json')
 def from_json_filter(value):
@@ -506,5 +701,4 @@ if __name__ == '__main__':
         print("Agent: jane@realestate.com / agent123")
         print("Agent: mike@realestate.com / agent123")
     
-
-    app.run(debug=True)
+    app.run(debug=True,port=4554)

@@ -1,0 +1,43 @@
+<div class="card mb-4">
+    <div class="card-header bg-dark text-white">
+        <h5 class="card-title mb-0">1. Client Data</h5>
+    </div>
+    <div class="card-body">
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label class="form-label">Client Name *</label>
+                <input type="text" class="form-control" name="name" required>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Mobile Number *</label>
+                <input type="tel" class="form-control" name="mobile" readonly>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Secondary Number</label>
+                <input type="tel" class="form-control" name="secondary_number" maxlength="10">
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Email</label>
+                <input type="email" class="form-control" name="email">
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Lead Source</label>
+                <select class="form-select" name="lead_source">
+                    <option value="">Select lead source</option>
+                    <option value="Website">Website</option>
+                    <option value="Facebook">Facebook</option>
+                    <option value="Instagram">Instagram</option>
+                    <option value="Referral">Referral</option>
+                    <option value="Walk-in">Walk-in</option>
+                    <option value="Newspaper">Newspaper</option>
+                    <option value="Google Ads">Google Ads</option>
+                    <option value="Broker">Broker</option>
+                </select>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Lead Source Project</label>
+                <input type="text" class="form-control" name="lead_source_project" placeholder="Project that generated lead">
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,59 @@
+<div class="card mb-4">
+    <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+        <h5 class="card-title mb-0">2. Site Visits</h5>
+        <button type="button" class="btn btn-light btn-sm" id="addVisitBtn">
+            <i class="fas fa-plus me-1"></i>Add Another Visit
+        </button>
+    </div>
+    <div class="card-body">
+        <div id="visitsContainer">
+            <!-- First Visit Card -->
+            <div class="visit-card card border-primary mb-3">
+                <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0">Visit #1</h6>
+                    <button type="button" class="btn btn-outline-danger btn-sm remove-visit" style="display: none;">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Visit Date *</label>
+                            <input type="date" class="form-control visit-date" name="visits[0][visit_date]" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Project *</label>
+                            <select class="form-select" name="visits[0][project_id]" required>
+                                <option value="">Select a project</option>
+                                {% for project in projects %}
+                                <option value="{{ project.id }}">{{ project.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Agents Involved</label>
+                            <select class="form-select select2-visit" name="visits[0][agents_involved]" multiple>
+                                {% for user in users %}
+                                <option value="{{ user.id }}" {% if user.id == current_user.id %}selected{% endif %}>
+                                    {{ user.name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                            <div class="form-text">Current user is automatically included</div>
+                        </div>
+                        <div class="col-md-6 d-none">
+                            <label class="form-label">Telecallers Involved</label>
+                            <input type="text" class="form-control" value="None" name="visits[0][telecallers_involved]" 
+                                   placeholder="Enter telecaller names separated by commas">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Visit Notes</label>
+                            <textarea class="form-control" name="visits[0][visit_notes]" rows="3" 
+                                      placeholder="Enter notes about this specific site visit"></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
