@@ -162,3 +162,8 @@ background: linear-gradient(135deg, #e3e5e7, #f1f5f9);
 .navbar{
     background-color: #19418f;
 }
+.btn-success.bg-white:hover {
+    color: #198754;
+    background-color: white !important;
+    border-color: #198754;
+}

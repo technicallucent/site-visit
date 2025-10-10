@@ -84,42 +84,68 @@ def dashboard():
 @app.route('/api/visit-logs')
 @login_required
 def get_visit_logs():
+    search = request.args.get('search', '').strip()
     agent_filter = request.args.get('agent')
     project_filter = request.args.get('project')
     start_date = request.args.get('start_date')
     end_date = request.args.get('end_date')
-    visits = SiteVisit.query.all()
+
+    # Base query
     query = SiteVisit.query.join(Client).join(Project)
-    
+
+    # Search: by name or mobile
+    if search:
+        query = query.filter(
+            db.or_(
+                Client.name.ilike(f"%{search}%"),
+                Client.mobile.ilike(f"%{search}%")
+            )
+        )
+
+    # Role-based restriction (agents only see their visits)
     if current_user.role == 'agent':
         query = query.filter(
-            (SiteVisit.agents_involved.contains(str(current_user.id))) |
-            (SiteVisit.created_by == current_user.id)
+            db.or_(
+                SiteVisit.agents_involved.contains(str(current_user.id)),
+                SiteVisit.created_by == current_user.id
+            )
         )
-    
+
+    # Filters
     if agent_filter:
         query = query.filter(SiteVisit.agents_involved.contains(agent_filter))
-    
+
     if project_filter:
         query = query.filter(SiteVisit.project_id == project_filter)
-    
+
     if start_date:
-        query = query.filter(SiteVisit.visit_date >= datetime.strptime(start_date, '%Y-%m-%d'))
-    
+        try:
+            start_dt = datetime.strptime(start_date, '%Y-%m-%d')
+            query = query.filter(SiteVisit.visit_date >= start_dt)
+        except ValueError:
+            pass  # optional: log bad date input
+
     if end_date:
-        query = query.filter(SiteVisit.visit_date <= datetime.strptime(end_date, '%Y-%m-%d'))
-    
+        try:
+            end_dt = datetime.strptime(end_date, '%Y-%m-%d')
+            query = query.filter(SiteVisit.visit_date <= end_dt)
+        except ValueError:
+            pass
+
+    # Fetch and order
     visits = query.order_by(SiteVisit.visit_date.desc()).all()
-    
+
+    # Build response
     result = []
     for visit in visits:
-        agents = json.loads(visit.agents_involved) if visit.agents_involved else []
         agent_names = []
-        for agent_id in agents:
-            agent = User.query.get(agent_id)
-            if agent:
-                agent_names.append(agent.name)
-        
+        try:
+            agents = json.loads(visit.agents_involved or '[]')
+            agent_objs = User.query.filter(User.id.in_(agents)).all()
+            agent_names = [agent.name for agent in agent_objs]
+        except Exception as e:
+            print("Error parsing agents:", e)
+
         result.append({
             'id': visit.id,
             'agent': ', '.join(agent_names),
@@ -127,10 +153,10 @@ def get_visit_logs():
             'client_mobile': visit.client.mobile,
             'project_name': visit.project.name,
             'visit_date': visit.visit_date.strftime('%b %d, %Y'),
-            'bhk_requirement': visit.client.bhk_requirement,
+            'bhk_requirement': visit.client.bhk_requirement or '',
             'can_delete': current_user.role == 'admin' or current_user.id == visit.created_by
         })
-    
+
     return jsonify(result)
 
 @app.route('/visit/<int:visit_id>')
@@ -413,6 +439,7 @@ def save_visits():
                 building_name=data.get('building_name', ''),
                 preferred_projects=json.dumps(data.get('preferred_projects', [])),
                 notes=data.get('notes', ''),
+                ethnicity=data.get('ethnicity', ''),
                 created_by=current_user.id
             )
             db.session.add(client)
@@ -432,6 +459,7 @@ def save_visits():
             client.building_name = data.get('building_name', '')
             client.preferred_projects = json.dumps(data.get('preferred_projects', []))
             client.notes = data.get('notes', '')
+            client.ethnicity = data.get('ethnicity', '')
             print(f"Updated existing client with ID: {client.id}")
         
         # Process and save all visits

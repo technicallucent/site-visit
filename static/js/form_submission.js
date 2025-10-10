@@ -21,7 +21,8 @@ document.getElementById('visitsForm').addEventListener('submit', function(e) {
         alert('Please add at least one site visit');
         return;
     }
-    
+
+
     // Validate each visit
     let hasErrors = false;
     visitCards.forEach((card, index) => {
@@ -53,6 +54,7 @@ document.getElementById('visitsForm').addEventListener('submit', function(e) {
         preferred_location: document.querySelector('select[name="preferred_location"]').value,
         current_location: document.querySelector('select[name="current_location"]').value,
         building_name: document.querySelector('input[name="building_name"]').value,
+        ethnicity: document.querySelector('select[name="ethnicity"]').value,
         notes: document.querySelector('textarea[name="notes"]').value,
         visits: []
     };
@@ -96,7 +98,7 @@ document.getElementById('visitsForm').addEventListener('submit', function(e) {
         console.log("Save result:", result);
         if (result.success) {
             // alert(`Successfully logged ${data.visits.length} site visit(s)!`);
-            // window.location.href = '/';
+            window.location.href = '/';
         } else {
             alert('Error: ' + result.message);
         }

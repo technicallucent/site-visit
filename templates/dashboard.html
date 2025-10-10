@@ -2,7 +2,13 @@
 
 {% block content %}
 
-
+<div>      <a
+                            href="{{ url_for('log_visit') }}"
+                            class="btn {% if current_page == 'log_visit' %}btn-primary{% else %}btn-success{% endif %}"
+                          >
+                            <i class="fas fa-plus me-2"></i>Add New Site Visit
+                          </a></div>
+                          <br>
     <!-- Filters Card -->
     <div class="row mb-4">
         <div class="col">
@@ -12,9 +18,10 @@
                 </h5>
             </div>
             <div class="card">
-                <div class="card-body">
-                    <div class="row g-3">
-                        <div class="col-md-3">
+                <div class="card-body ">
+                    <div class="d-flex justify-content-between">
+                               {% if current_user.role == 'admin' %}
+                        <div class="col-md-3 pt-3">
                             <label class="form-label">Agent</label>
                             <select class="form-select" id="agentFilter">
                                 <option value="">Select Agent</option>
@@ -23,7 +30,17 @@
                                 {% endfor %}
                             </select>
                         </div>
-                        <div class="col-md-3">
+                            {% endif %}
+                        <div class="col-md-3 pt-3 d-none">
+                            <label class="form-label">Agent</label>
+                            <select class="form-select" id="agentFilter">
+                                <option value="">Select Agent</option>
+                                {% for agent in agents %}
+                                <option value="{{ agent.id }}">{{ agent.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-3 pt-3">
                             <label class="form-label">Project</label>
                             <select class="form-select" id="projectFilter">
                                 <option value="">Select Project</option>
@@ -32,19 +49,19 @@
                                 {% endfor %}
                             </select>
                         </div>
-                        <div class="col-md-2">
+                        <div class="col-md-2 pt-3">
                             <label class="form-label">Start Date</label>
                             <input type="date" class="form-control" id="startDate">
                         </div>
-                        <div class="col-md-2">
+                        <div class="col-md-2 pt-3">
                             <label class="form-label">End Date</label>
                             <input type="date" class="form-control" id="endDate">
                         </div>
-                        <div class="col-md-2 d-flex align-items-end">
-                            <button class="btn btn-outline-secondary me-2" id="resetFilters">
+                        <div class="col-md-2 d-flex align-items-end flex-row flex-wrap gap-2">
+                            <button class="btn btn-outline-secondary me-2 d-flex align-items-center" id="resetFilters">
                                 <i class="fas fa-refresh me-1"></i>Reset
                             </button>
-                            <button class="btn btn-primary" id="applyFilters">
+                            <button class="btn btn-primary  d-flex align-items-center" id="applyFilters">
                                 <i class="fas fa-search me-1"></i>Apply
                             </button>
                         </div>
@@ -54,19 +71,21 @@
         </div>
     </div>
 
-<div>      <a
-                            href="{{ url_for('log_visit') }}"
-                            class="btn {% if current_page == 'log_visit' %}btn-primary{% else %}btn-success{% endif %}"
-                          >
-                            <i class="fas fa-plus me-2"></i>Add New Site Visit
-                          </a></div>
-                          <br>
+
     <!-- Visit Logs Table -->
     <div class="row">
         <div class="col">
             <div class=" d-flex justify-content-between align-items-center p-3">
                 <h5 class=" mb-0 text-black">All Visit Logs</h5>
-                <span class="badge bg-dark" id="visitCount">Loading...</span>
+               
+                <div class="d-flex justify-content-between align-items-center p-3">
+    <h5 class="mb-0 text-black">All Visit Logs</h5>
+    <div class="d-flex align-items-center">
+        <input type="text" id="searchInput" class="form-control form-control-sm me-2" placeholder="Search client name or mobile">
+        <span class="badge bg-dark p-2" id="visitCount">Loading...</span>
+    </div>
+</div>
+
             </div>
             <div class="card">
                 <div class="card-body">
@@ -136,7 +155,8 @@ function loadVisitLogs() {
         agent: document.getElementById('agentFilter').value,
         project: document.getElementById('projectFilter').value,
         start_date: document.getElementById('startDate').value,
-        end_date: document.getElementById('endDate').value
+        end_date: document.getElementById('endDate').value,
+        search: document.getElementById('searchInput').value.trim() 
     });
 
     fetch(`/api/visit-logs?${params}`)
@@ -186,5 +206,9 @@ function loadVisitLogs() {
                 '<tr><td colspan="6" class="text-center text-danger">Error loading visit logs</td></tr>';
         });
 }
+document.getElementById('searchInput').addEventListener('input', function() {
+    loadVisitLogs();
+});
+
 </script>
 {% endblock %}

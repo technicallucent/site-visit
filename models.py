@@ -32,6 +32,7 @@ class Client(db.Model):
     current_location = db.Column(db.String(100))
     building_name = db.Column(db.String(100))
     preferred_projects = db.Column(db.Text)  # JSON string of project IDs
+    ethnicity = db.Column(db.String(100))
     notes = db.Column(db.Text)
     created_by = db.Column(db.Integer, db.ForeignKey('user.id'))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)

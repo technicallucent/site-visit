@@ -1,3 +1,4 @@
+<!-- CLIENT DATA SECTION -->
 <div class="card mb-4">
     <div class="card-header bg-dark text-white">
         <h5 class="card-title mb-0">1. Client Data</h5>
@@ -21,6 +22,17 @@
                 <input type="email" class="form-control" name="email">
             </div>
             <div class="col-md-6">
+                <label class="form-label">Current Location</label>
+                <select class="form-select select2-location" name="current_location" id="currentLocation">
+                    <option value="">Select current location</option>
+                    <!-- Options will be loaded dynamically -->
+                </select>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Building Name</label>
+                <input type="text" class="form-control" name="building_name" placeholder="Enter building name">
+            </div>
+            <div class="col-md-6">
                 <label class="form-label">Lead Source</label>
                 <select class="form-select" name="lead_source">
                     <option value="">Select lead source</option>
@@ -38,6 +50,26 @@
                 <label class="form-label">Lead Source Project</label>
                 <input type="text" class="form-control" name="lead_source_project" placeholder="Project that generated lead">
             </div>
+
+            <!-- 🆕 New Ethnicity Field -->
+            <div class="col-md-6">
+                <label class="form-label">Ethnicity</label>
+                <select class="form-select" name="ethnicity">
+                    <option value="">Select ethnicity</option>
+                    <option value="Gujrati">Gujrati</option>
+                    <option value="Marwadi">Marwadi</option>
+                    <option value="Kutchi">Kutchi</option>
+                    <option value="Jain">Jain</option>
+                    <option value="South Indian">South Indian</option>
+                    <option value="North Indian">North Indian</option>
+                    <option value="Maharashtrian">Maharashtrian</option>
+                    <option value="Muslim">Muslim</option>
+                    <option value="Bengali">Bengali</option>
+                    <option value="Sindhi">Sindhi</option>
+                    <option value="Parsi">Parsi</option>
+                </select>
+            </div>
+
         </div>
     </div>
 </div>

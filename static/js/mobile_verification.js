@@ -92,8 +92,10 @@ function fillClientForm(client) {
     document.querySelector('input[name="email"]').value = client.email || '';
     document.querySelector('input[name="secondary_number"]').value = client.secondary_number || '';
     document.querySelector('input[name="lead_source_project"]').value = client.lead_source_project || '';
-    document.querySelector('input[name="preferred_location"]').value = client.preferred_location || '';
-    document.querySelector('input[name="current_location"]').value = client.current_location || '';
+    document.querySelector('select[name="current_location"]').value = client.current_location || '';
+
+    document.querySelector('select[name="preferred_location"]').value = client.preferred_location || '';
+
     document.querySelector('input[name="building_name"]').value = client.building_name || '';
     document.querySelector('textarea[name="notes"]').value = client.notes || '';
     
@@ -107,7 +109,8 @@ function fillClientForm(client) {
     if (client.budget) {
         document.querySelector('select[name="budget"]').value = client.budget;
     }
-    
+    $('select[name="preferred_location"]').val(client.preferred_location).trigger('change');
+    $('select[name="current_location"]').val(client.current_location).trigger('change');
     // Fill preferred projects (multiple select)
     if (client.preferred_projects) {
         try {
@@ -172,4 +175,24 @@ document.addEventListener('DOMContentLoaded', function() {
 document.getElementById('verifyMobile').addEventListener('click', function() {
     // This will run after the verification, so locations will be loaded when needed
     setTimeout(loadLocations, 100);
+});
+// Helper: Get query param from URL
+function getQueryParam(param) {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get(param);
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+    const mobileFromQuery = getQueryParam('mobile');
+
+    if (mobileFromQuery && /^\d{10}$/.test(mobileFromQuery)) {
+        const mobileInput = document.getElementById('mobileNumber');
+        mobileInput.value = mobileFromQuery;
+
+        // Wait for locations to load before verifying
+        // Use a small delay to ensure Select2 + options are ready
+        setTimeout(() => {
+            document.getElementById('verifyMobile').click();
+        }, 1500);
+    }
 });
