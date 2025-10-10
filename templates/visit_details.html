@@ -70,7 +70,7 @@
     {% if can_edit %}
     <form method="POST" action="{{ url_for('update_visit_status', visit_id=visit.id) }}">
         <select name="status" class="form-select form-select-sm mb-2" style="width:max-content; border:green solid 1px;" required>
-            {% for status_option in ['Scheduled', 'Completed', 'Cancelled'] %}
+            {% for status_option in ['Upcoming', 'Completed', 'Cancelled'] %}
                 <option class="" value="{{ status_option }}" {% if visit.status == status_option %}selected{% endif %}>{{ status_option }}</option>
             {% endfor %}
         </select>
@@ -188,6 +188,12 @@
                     <div class="mb-2">
                         <small class="text-muted">Lead Source Project:</small>
                         <p class="mb-1">{{ visit.client.lead_source_project }}</p>
+                    </div>
+                    {% endif %}
+                        {% if visit.client.ethnicity %}
+                    <div class="mb-2">
+                        <small class="text-muted">Ethnicity:</small>
+                        <p class="mb-1">{{ visit.client.ethnicity }}</p>
                     </div>
                     {% endif %}
                 </div>

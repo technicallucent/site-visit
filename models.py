@@ -55,7 +55,7 @@ class SiteVisit(db.Model):
     client_id = db.Column(db.Integer, db.ForeignKey('client.id'), nullable=False)
     visit_date = db.Column(db.DateTime, nullable=False)
     project_id = db.Column(db.Integer, db.ForeignKey('project.id'), nullable=False)
-    status = db.Column(db.String(20), default='Scheduled')  # Scheduled, Completed, Cancelled
+    status = db.Column(db.String(20), default='Upcoming')  # Upcoming, Completed, Cancelled
     agents_involved = db.Column(db.Text)  # JSON string of user IDs
     telecallers_involved = db.Column(db.Text)  # JSON string of telecaller names
     notes = db.Column(db.Text)
