@@ -69,6 +69,7 @@ document.getElementById('visitsForm').addEventListener('submit', function(e) {
             visit_date: card.querySelector(`input[name="visits[${index}][visit_date]"]`).value,
             project_id: card.querySelector(`select[name="visits[${index}][project_id]"]`).value,
             telecallers_involved: card.querySelector(`input[name="visits[${index}][telecallers_involved]"]`).value,
+            status: card.querySelector(`select[name="visits[${index}][status]"]`).value,
             visit_notes: card.querySelector(`textarea[name="visits[${index}][visit_notes]"]`).value
         };
         

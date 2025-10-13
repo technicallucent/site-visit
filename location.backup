@@ -1,0 +1,75 @@
+locations = [
+    'Worli', 'Matunga East', 'Parel', 'Prabhadevi', 'Santacruz', 'Sewri', 'Sion',
+    'Tardeo', 'Thane', 'Vikhroli', 'Vile Parle', 'Wadala', 'Mahim West', 'Malad',
+    'Marine Lines', 'Matunga West', 'Mulund', 'Navi Mumbai', 'Powai', 'Goregaon',
+    'Jogeshwari', 'Kanjurmarg', 'Kandivali', 'Khar Road', 'Lalbaug', 'Lower Parel',
+    'Mahalaxmi', 'Andheri', 'Bandra', 'BKC', 'Byculla', 'Charni Road', 'Chembur',
+    'Colaba', 'Dadar East', 'Dadar West', 'Dahisar', 'Ghatkopar'
+]
+
+project_names = [
+    "Lodha Worli", "MICL Aaradhya Avaan", "Lodha Divino", "Lodha Vero", "Promesa Fremont",
+    "Pantheion Palmera", "Rustomjee Crescent", "Rustomjee Panaroma", "Rustomjee Parisrham",
+    "Lodha Malabar Walkeshwar", "Vida Crest", "Shreedham Mansion 835", "Hiranandani Bandra",
+    "Lodha Sewri", "Lnt Mahalaxmi", "Aplite Sapphire", "Hiranandani Sands", "Satviki Horizon",
+    "Chunawala La Mer", "Icon Merx", "Kalpataru Azuro", "Kalpataru Prive", "Sugee Srushti",
+    "Desai Solitaire Resale", "Veera Heights Resale", "Veena Solace", "Suraj Aureva",
+    "Kabra Dvayam", "Shreeji Serenity", "Anchor Victorian Resale", "Verain Iora Tardeo",
+    "Four Seasons", "6 Crystal Walkeshwar", "Gala Paramount", "Lodha Bellevue tower 3",
+    "Inspira One Bandra", "Marathon Futurex Office Spaces", "Elements Realty Bandra",
+    "House Of Hiranandani Bandra", "Gurukrupa Marquee", "Excel Bellissima", "71 Midtown",
+    "Lodha Office Lower parel", "Jade Vedanta", "Happy home Babulnath", "Happy Home Sion",
+    "Manor deck Babulnath", "Viyaara Altiora", "Lodha Divino Duplex", "Rishabh Platina",
+    "Sheth Promont", "Godrej One Worli", "Jade Acharya", "Jade Avenue", "Lodha Lumis",
+    "Kingston Duplex", "Shatrunjay Parel", "One Avighna Park", "Bhavya Elite", "Bafna Siddhgiri",
+    "Runwal 7 Mahalaxmi T2", "Dharti Heights", "Ashok Gardens", "Lodha Azzuro", "Lodha Primo",
+    "Evita Empresss", "25 Downtown", "Kalpataru One", "Parshwa Lotus", "Shapoorji Imperial 1",
+    "Dosti Mezzo", "Rajkamal Park Parel", "Pearl Heights", "Avenue 15 Sewri", "Adi Darshan",
+    "VCA Sunita", "VCA Nav Dadar", "Avhad Oasis", "Sigma Dadar", "Prestige Nautilius Worli",
+    "Nine Reflex", "Kalpataru Horizon", "Runwal Reserve", "Darshan Aura", "Ra Residences",
+    "Raheja Amaltis Sion", "Planet Godrej Mahalaxmi", "Collection Ads", "20 opera",
+    "Kapil Tirth", "Runwal Raaya Worli", "Lodha The Park Worli", "Birla Silas", "Sumer Samaq",
+    "Raymond Bandra", "Promesa West End", "Lnt Island Cove Mahim", "Gala Habitat (Swayam)",
+    "Rustomjee 180 Bayview", "Moraj Opulence", "Spenta Medius Legasea", "Rattan Signature",
+    "Suraj Ave Maria", "Suraj Emmanuel", "Suraj Park View", "Lodha Bellevue", "Central Park",
+    "Atlantis One", "Odyssey Shapoorji", "Pristine Heights", "Nandivardhan Monopoly",
+    "Prince Care Amara", "Sanghvi Optima", "Runwal 7 Mahalaxmi", "Suraj Ocean Star",
+    "Omkar 1973", "Spenta Stardeous", "Suraj Eterna", "Suraj Lumina", "Vraj Tiara",
+    "Suraj Vitalis", "Suraj Palette", "Vardhman Flora", "Sugee Akanksha", "Sugee Sea Krest",
+    "The Canvas Residencies", "Tribeca Tejukaya Parel", "Sheth Younique Sion", "Sheth Beaumonte",
+    "Salsette 27", "Siddha Sky", "Rustomjee Crown", "Ruparel Vivanza", "Ruparel Nova",
+    "Ruparel Millennia", "Ruparel Luminare", "Ruparel Jewel", "Ruparel Ariana", "Runwal Nirvana",
+    "Rubberwala Seventh Avenue", "Riddhi Siddhi", "Raunak Centrum", "Ratan Address",
+    "Raheja Imperia Riviere", "Raheja Modern Vivarea", "Prestige Ocean Towers",
+    "Prestige Jasdan Classic", "Prescon Midtown Bay", "Piramal Mahalaxmi", "Piramal Aranya",
+    "Nishika Elysium", "Nandivardhan Parkway", "Monte South", "Lokhandwala Minerva",
+    "Lodha World Towers", "Lodha Vista", "Lodha Venezia", "Lodha Solitaire",
+    "Lodha New Cuffe Parade", "Lodha Marq", "Lodha Kiara", "Lodha Evoq", "Lodha Signet Matunga",
+    "Lodha Aura", "Lodha Adrina", "LnT The Gateway Sewri", "LnT Crescent Bay", "Kinjal Pride",
+    "Kalpataru oceana", "Kalpataru Matru Ashish", "Kalpataru Avana", "Johaan Signature Isle",
+    "Jaswanti Bliss", "Island City Center", "Inspire Parel", "Imperial Worli",
+    "Gundecha Kbk Magnum", "Grand Pallazo", "Godrej Horizon", "Godrej Five Gardens",
+    "Godrej Avenue 11", "GBD Evana Heights", "Eon One", "El Mejor", "Dosti Eastern Bay",
+    "DLH Signature", "Darshan Inara", "Chandak Chembur Highscape City", "Celestia Spaces",
+    "Birla Niyaara Worli", "Bhoomi Simana", "Baya Highlife Sunrise", "Baya Midtown",
+    "Avighna Marquee", "Ashok Towers Parel", "Aryavrat", "Altitude", "Ajmera Manhattan",
+    "Ajmera Greenfinity", "Aga Hall Estate", "Aangan", "Aakasa Worli", "25 South",
+    "22 Dhuleva", "140 Shivaji Park"
+]
+
+
+with app.app_context():
+    # Insert locations
+    for name in locations:
+        if not Location.query.filter_by(name=name).first():
+            loc = Location(name=name)
+            db.session.add(loc)
+
+    # Insert projects
+    for name in project_names:
+        if not Project.query.filter_by(name=name).first():
+            proj = Project(name=name)
+            db.session.add(proj)
+
+    db.session.commit()
+    print("✅ Locations and Projects inserted successfully.")

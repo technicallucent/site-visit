@@ -2,213 +2,225 @@
 
 {% block content %}
 
-<div>      <a
-                            href="{{ url_for('log_visit') }}"
-                            class="btn {% if current_page == 'log_visit' %}btn-primary{% else %}btn-success{% endif %}"
-                          >
-                            <i class="fas fa-plus me-2"></i>Add New Site Visit
-                          </a></div>
-                          <br>
-    <!-- Filters Card -->
-    <div class="row mb-4">
-        <div class="col">
-            <div class="">
-                <h5 class="mb-0  text-black p-3">
-                    <i class="fas fa-filter me-2 text-black"></i>Filter Visit Logs
-                </h5>
-            </div>
-            <div class="card">
-                <div class="card-body ">
-                    <div class="d-flex justify-content-between">
-                               {% if current_user.role == 'admin' %}
-                        <div class="col-md-3 pt-3">
-                            <label class="form-label">Agent</label>
-                            <select class="form-select" id="agentFilter">
-                                <option value="">Select Agent</option>
-                                {% for agent in agents %}
-                                <option value="{{ agent.id }}">{{ agent.name }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                            {% endif %}
-                        <div class="col-md-3 pt-3 d-none">
-                            <label class="form-label">Agent</label>
-                            <select class="form-select" id="agentFilter">
-                                <option value="">Select Agent</option>
-                                {% for agent in agents %}
-                                <option value="{{ agent.id }}">{{ agent.name }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        <div class="col-md-3 pt-3">
-                            <label class="form-label">Project</label>
-                            <select class="form-select" id="projectFilter">
-                                <option value="">Select Project</option>
-                                {% for project in projects %}
-                                <option value="{{ project.id }}">{{ project.name }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        <div class="col-md-2 pt-3">
-                            <label class="form-label">Start Date</label>
-                            <input type="date" class="form-control" id="startDate">
-                        </div>
-                        <div class="col-md-2 pt-3">
-                            <label class="form-label">End Date</label>
-                            <input type="date" class="form-control" id="endDate">
-                        </div>
-                        <div class="col-md-2 d-flex align-items-end flex-row flex-wrap gap-2">
-                            <button class="btn btn-outline-secondary me-2 d-flex align-items-center" id="resetFilters">
-                                <i class="fas fa-refresh me-1"></i>Reset
-                            </button>
-                            <button class="btn btn-primary  d-flex align-items-center" id="applyFilters">
-                                <i class="fas fa-search me-1"></i>Apply
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
+<div>
+  <a
+    href="{{ url_for('log_visit') }}"
+    class="btn {% if current_page == 'log_visit' %}btn-primary{% else %}btn-success{% endif %}"
+  >
+    <i class="fas fa-plus me-2"></i>Add New Site Visit
+  </a>
+</div>
+<br>
+<!-- Filters Card -->
+<div class="row mb-4">
+  <div class="col">
+    <div class="">
+      <h5 class="mb-0 text-black p-3">
+        <i class="fas fa-filter me-2 text-black"></i>Filter Visit Logs
+      </h5>
+    </div>
+    <div class="card">
+      <div class="card-body">
+        <div class="d-flex flex-wrap gap-3 justify-content-between">
+          {% if current_user.role == 'admin' %}
+          <div class="col-md-3 col-12 pt-3">
+            <label class="form-label">Agent</label>
+            <select class="form-select" id="agentFilter">
+              <option value="">Select Agent</option>
+              {% for agent in agents %}
+              <option value="{{ agent.id }}">{{ agent.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          {% endif %}
+          <div class="col-md-3 col-12 pt-3 d-none">
+            <label class="form-label">Agent</label>
+            <select class="form-select" id="agentFilter">
+              <option value="">Select Agent</option>
+              {% for agent in agents %}
+              <option value="{{ agent.id }}">{{ agent.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="col-md-3 col-12 pt-3">
+            <label class="form-label">Project</label>
+            <select class="form-select" id="projectFilter">
+              <option value="">Select Project</option>
+              {% for project in projects %}
+              <option value="{{ project.id }}">{{ project.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="col-md-2 col-6 pt-3">
+            <label class="form-label">Start Date</label>
+            <input type="date" class="form-control" id="startDate" />
+          </div>
+          <div class="col-md-2 col-6 pt-3">
+            <label class="form-label">End Date</label>
+            <input type="date" class="form-control" id="endDate" />
+          </div>
+          <div class="col-md-2 col-12 d-flex align-items-end flex-row flex-wrap gap-2 pt-3">
+            <button
+              class="btn btn-outline-secondary me-2 d-flex align-items-center flex-grow-1 flex-md-grow-0"
+              id="resetFilters"
+            >
+              <i class="fas fa-refresh me-1"></i>Reset
+            </button>
+            <button
+              class="btn btn-primary d-flex align-items-center flex-grow-1 flex-md-grow-0"
+              id="applyFilters"
+            >
+              <i class="fas fa-search me-1"></i>Apply
+            </button>
+          </div>
         </div>
+      </div>
     </div>
-
-
-    <!-- Visit Logs Table -->
-    <div class="row">
-        <div class="col">
-            <div class=" d-flex justify-content-between align-items-center p-3">
-                <h5 class=" mb-0 text-black">All Visit Logs</h5>
-               
-                <div class="d-flex justify-content-between align-items-center p-3">
-    <h5 class="mb-0 text-black">All Visit Logs</h5>
-    <div class="d-flex align-items-center">
-        <input type="text" id="searchInput" class="form-control form-control-sm me-2" placeholder="Search client name or mobile">
-        <span class="badge bg-dark p-2" id="visitCount">Loading...</span>
-    </div>
+  </div>
 </div>
 
-            </div>
-            <div class="card">
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>Agent</th>
-                                    <th>Client</th>
-                                    <th>Project</th>
-                                    <th>BHK</th>
-                                    <th>Visit Date</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="visitLogsTable">
-                                <tr>
-                                    <td colspan="6" class="text-center">Loading visit logs...</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
+<!-- Visit Logs Table -->
+<div class="row">
+  <div class="col">
+    <div class="d-flex justify-content-between align-items-center p-3 flex-wrap gap-3">
+      <h5 class="mb-0 text-black">All Visit Logs</h5>
+
+      <div class="d-flex align-items-center gap-2 flex-grow-1 flex-md-grow-0">
+        <input
+          type="text"
+          id="searchInput"
+          class="form-control form-control-sm"
+          placeholder="Search client name or mobile"
+        />
+        <span class="badge bg-dark p-2" id="visitCount">Loading...</span>
+      </div>
     </div>
+    <div class="card">
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-hover mb-0">
+            <thead class="table-light">
+              <tr>
+                <th>Agent</th>
+                <th>Client</th>
+                <th>Project</th>
+                <th>Status</th>
+                <th>Visit Date</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="visitLogsTable">
+              <tr>
+                <td colspan="6" class="text-center">Loading visit logs...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
+  document.addEventListener("DOMContentLoaded", function () {
     loadVisitLogs();
-    
-    document.getElementById('applyFilters').addEventListener('click', loadVisitLogs);
-    document.getElementById('resetFilters').addEventListener('click', function() {
-        document.getElementById('agentFilter').value = '';
-        document.getElementById('projectFilter').value = '';
-        document.getElementById('startDate').value = '';
-        document.getElementById('endDate').value = '';
-        loadVisitLogs();
+
+    document.getElementById("applyFilters").addEventListener("click", loadVisitLogs);
+    document.getElementById("resetFilters").addEventListener("click", function () {
+      document.getElementById("agentFilter").value = "";
+      document.getElementById("projectFilter").value = "";
+      document.getElementById("startDate").value = "";
+      document.getElementById("endDate").value = "";
+      loadVisitLogs();
     });
-});
-function deleteVisit(visitId) {
+  });
+  function deleteVisit(visitId) {
     if (!confirm("Are you sure you want to delete this visit?")) return;
 
     fetch(`/api/visit/${visitId}/delete`, {
-        method: 'DELETE',
-        headers: {
-            'Content-Type': 'application/json'
-        }
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
     })
-    .then(res => {
-        if (!res.ok) throw new Error('Failed to delete visit');
+      .then((res) => {
+        if (!res.ok) throw new Error("Failed to delete visit");
         return res.json();
-    })
-    .then(data => {
+      })
+      .then((data) => {
         alert(data.message);
         loadVisitLogs(); // reload table after deletion
-    })
-    .catch(err => {
+      })
+      .catch((err) => {
         console.error(err);
-        alert('Error deleting visit.');
-    });
-}
+        alert("Error deleting visit.");
+      });
+  }
 
-function loadVisitLogs() {
+  function loadVisitLogs() {
     const params = new URLSearchParams({
-        agent: document.getElementById('agentFilter').value,
-        project: document.getElementById('projectFilter').value,
-        start_date: document.getElementById('startDate').value,
-        end_date: document.getElementById('endDate').value,
-        search: document.getElementById('searchInput').value.trim() 
+      agent: document.getElementById("agentFilter").value,
+      project: document.getElementById("projectFilter").value,
+      start_date: document.getElementById("startDate").value,
+      end_date: document.getElementById("endDate").value,
+      search: document.getElementById("searchInput").value.trim(),
     });
 
     fetch(`/api/visit-logs?${params}`)
-        .then(response => response.json())
-        .then(data => {
-            const tbody = document.getElementById('visitLogsTable');
-            const visitCount = document.getElementById('visitCount');
-            
-            if (data.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">No visit logs found</td></tr>';
-                visitCount.textContent = 'Showing 0 visits';
-                return;
-            }
-            
-            tbody.innerHTML = '';
-            visitCount.textContent = `Showing ${data.length} visits`;
-            
-            data.forEach(visit => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
+      .then((response) => response.json())
+      .then((data) => {
+        const tbody = document.getElementById("visitLogsTable");
+        const visitCount = document.getElementById("visitCount");
+
+        if (data.length === 0) {
+          tbody.innerHTML =
+            '<tr><td colspan="6" class="text-center text-muted">No visit logs found</td></tr>';
+          visitCount.textContent = "Showing 0 visits";
+          return;
+        }
+
+        tbody.innerHTML = "";
+        visitCount.textContent = `Showing ${data.length} visits`;
+
+        data.forEach((visit) => {
+          const row = document.createElement("tr");
+          row.innerHTML = `
                     <td>${visit.agent}</td>
                     <td>
                         <strong>${visit.client_name}</strong><br>
                         <small class="text-muted">${visit.client_mobile}</small>
                     </td>
                     <td>${visit.project_name}</td>
-                    <td><span class="badge bg-info">${visit.bhk_requirement || 'N/A'}</span></td>
+                    <td><span class="badge bg-info">${visit.status || "N/A"}</span></td>
                     <td>${visit.visit_date}</td>
                    <td>
     <a href="/visit/${visit.id}" class="btn btn-sm btn-outline-primary me-1">
         <i class="fas fa-eye me-1"></i>View
     </a>
-    ${visit.can_delete ? `
+    ${
+      visit.can_delete
+        ? `
         <button class="btn btn-sm btn-outline-danger" onclick="deleteVisit(${visit.id})">
             <i class="fas fa-trash-alt me-1"></i>Delete
         </button>
-    ` : ''}
+    `
+        : ""
+    }
 </td>
 
                 `;
-                tbody.appendChild(row);
-            });
-        })
-        .catch(error => {
-            console.error('Error loading visit logs:', error);
-            document.getElementById('visitLogsTable').innerHTML = 
-                '<tr><td colspan="6" class="text-center text-danger">Error loading visit logs</td></tr>';
+          tbody.appendChild(row);
         });
-}
-document.getElementById('searchInput').addEventListener('input', function() {
+      })
+      .catch((error) => {
+        console.error("Error loading visit logs:", error);
+        document.getElementById("visitLogsTable").innerHTML =
+          '<tr><td colspan="6" class="text-center text-danger">Error loading visit logs</td></tr>';
+      });
+  }
+  document.getElementById("searchInput").addEventListener("input", function () {
     loadVisitLogs();
-});
-
+  });
 </script>
+
 {% endblock %}

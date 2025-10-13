@@ -43,6 +43,15 @@ function addNewVisitCard() {
                     <input type="text" class="form-control" value="None" name="visits[${visitCounter-1}][telecallers_involved]" 
                            placeholder="Enter telecaller names separated by commas">
                 </div>
+                <div class="col-md-6">
+                    <label class="form-label">Visit Status *</label>
+                    <select class="form-select" name="visits[${visitCounter-1}][status]" required>
+                    <option value="Upcoming" selected>Upcoming</option>
+                    <option value="Completed">Completed</option>
+                    <option value="Cancelled">Cancelled</option>
+                    </select>
+                </div>
+
                 <div class="col-12">
                     <label class="form-label">Visit Notes</label>
                     <textarea class="form-control" name="visits[${visitCounter-1}][visit_notes]" rows="3" 

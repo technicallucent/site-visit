@@ -34,22 +34,31 @@
                             <label class="form-label">Agents Involved</label>
                             <select class="form-select select2-visit" name="visits[0][agents_involved]" multiple>
                                 {% for user in users %}
-                                <option value="{{ user.id }}" {% if user.id == current_user.id %}selected{% endif %}>
+                                <option value="{{ user.id }}" {% if user.id==current_user.id %}selected{% endif %}>
                                     {{ user.name }}
                                 </option>
                                 {% endfor %}
                             </select>
                             <div class="form-text">Current user is automatically included</div>
                         </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Visit Status *</label>
+                            <select class="form-select" name="visits[0][status]" required>
+                                <option value="Upcoming" selected>Upcoming</option>
+                                <option value="Completed">Completed</option>
+                                <option value="Cancelled">Cancelled</option>
+                            </select>
+                        </div>
+
                         <div class="col-md-6 d-none">
                             <label class="form-label">Telecallers Involved</label>
-                            <input type="text" class="form-control" value="None" name="visits[0][telecallers_involved]" 
-                                   placeholder="Enter telecaller names separated by commas">
+                            <input type="text" class="form-control" value="None" name="visits[0][telecallers_involved]"
+                                placeholder="Enter telecaller names separated by commas">
                         </div>
                         <div class="col-12">
                             <label class="form-label">Visit Notes</label>
-                            <textarea class="form-control" name="visits[0][visit_notes]" rows="3" 
-                                      placeholder="Enter notes about this specific site visit"></textarea>
+                            <textarea class="form-control" name="visits[0][visit_notes]" rows="3"
+                                placeholder="Enter notes about this specific site visit"></textarea>
                         </div>
                     </div>
                 </div>

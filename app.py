@@ -34,6 +34,10 @@ db.init_app(app)  # <- Important!
 #     except Exception as e:
 #         print("Error fetching timeout variables:", e)
 
+# Option 1: Run inside a script
+
+
+
 login_manager = LoginManager()
 login_manager.login_view = 'login'
 login_manager.init_app(app)
@@ -87,6 +91,7 @@ def get_visit_logs():
     search = request.args.get('search', '').strip()
     agent_filter = request.args.get('agent')
     project_filter = request.args.get('project')
+    status_filter = request.args.get('status')
     start_date = request.args.get('start_date')
     end_date = request.args.get('end_date')
 
@@ -153,6 +158,7 @@ def get_visit_logs():
             'client_mobile': visit.client.mobile,
             'project_name': visit.project.name,
             'visit_date': visit.visit_date.strftime('%b %d, %Y'),
+            'status': visit.status or 'Upcoming', 
             'bhk_requirement': visit.client.bhk_requirement or '',
             'can_delete': current_user.role == 'admin' or current_user.id == visit.created_by
         })
@@ -486,6 +492,7 @@ def save_visits():
                 client_id=client.id,
                 visit_date=datetime.strptime(visit_data['visit_date'], '%Y-%m-%d'),
                 project_id=int(visit_data['project_id']),
+                status=visit_data['status'],
                 agents_involved=json.dumps(agents_involved),
                 telecallers_involved=json.dumps(telecallers_list),
                 notes=visit_data.get('visit_notes', ''),
