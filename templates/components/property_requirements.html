@@ -32,75 +32,77 @@
             </div>
             <div class="col-md-6">
                 <label class="form-label">Preferred Location</label>
-                <select class="form-select select2-location" name="preferred_location" id="preferredLocation">
+                <select class="form-select select2-location" name="preferred_location[]" id="preferredLocation"
+                    multiple>
                     <option value="">Select preferred location</option>
                     <!-- Options will be loaded dynamically -->
                 </select>
+                <div class="form-text">You can select multiple locations</div>
             </div>
             <div class="col-md-6">
                 <label class="form-label">Preferred Projects</label>
                 <select class="form-select select2" name="preferred_projects" multiple>
                     {% for project in projects %}
-                        <option value="{{ project.id }}">{{ project.name }}</option>
+                    <option value="{{ project.id }}">{{ project.name }}</option>
                     {% endfor %}
                 </select>
                 <div class="form-text">You can select multiple projects</div>
             </div>
             <div class="col-12">
                 <label class="form-label">Notes</label>
-                <textarea class="form-control" name="notes" rows="3" 
-                          placeholder="Enter any additional notes about client requirements"></textarea>
+                <textarea class="form-control" name="notes" rows="3"
+                    placeholder="Enter any additional notes about client requirements"></textarea>
             </div>
         </div>
     </div>
 </div>
 <script>
     function loadLocations() {
-    fetch('/api/locations')
-        .then(response => response.json())
-        .then(locations => {
-            const preferredLocationSelect = document.getElementById('preferredLocation');
-            const currentLocationSelect = document.getElementById('currentLocation');
-            
-            // Clear existing options except the first one
-            clearSelectOptions(preferredLocationSelect);
-            clearSelectOptions(currentLocationSelect);
-            
-            // Add location options
-            locations.forEach(location => {
-                const option1 = new Option(location.name, location.name);
-                const option2 = new Option(location.name, location.name);
-                preferredLocationSelect.add(option1);
-                currentLocationSelect.add(option2);
-            });
-            
-            // Initialize Select2 for location dropdowns
-            $('.select2-location').select2({
-                placeholder: "Select location",
-                allowClear: true,
-                width: '100%'
-            });
-        })
-        .catch(error => {
-            console.error('Error loading locations:', error);
-        });
-}
+        fetch('/api/locations')
+            .then(response => response.json())
+            .then(locations => {
+                const preferredLocationSelect = document.getElementById('preferredLocation');
+                const currentLocationSelect = document.getElementById('currentLocation');
 
-function clearSelectOptions(selectElement) {
-    // Keep only the first option (placeholder)
-    while (selectElement.options.length > 1) {
-        selectElement.remove(1);
+                // Clear existing options except the first one
+                clearSelectOptions(preferredLocationSelect);
+                clearSelectOptions(currentLocationSelect);
+
+                // Add location options
+                locations.forEach(location => {
+                    const option1 = new Option(location.name, location.name);
+                    const option2 = new Option(location.name, location.name);
+                    preferredLocationSelect.add(option1);
+                    currentLocationSelect.add(option2);
+                });
+
+                // Initialize Select2 for location dropdowns
+                $('.select2-location').select2({
+                    placeholder: "Select location",
+                    allowClear: true,
+                    width: '100%'
+                });
+            })
+            .catch(error => {
+                console.error('Error loading locations:', error);
+            });
     }
-}
 
-// Load locations when the page loads
-document.addEventListener('DOMContentLoaded', function() {
-    loadLocations();
-});
+    function clearSelectOptions(selectElement) {
+        // Keep only the first option (placeholder)
+        while (selectElement.options.length > 1) {
+            selectElement.remove(1);
+        }
+    }
 
-// Also load locations when client data section is shown
-document.getElementById('verifyMobile').addEventListener('click', function() {
-    // This will run after the verification, so locations will be loaded when needed
-    setTimeout(loadLocations, 100);
-});
+    // Load locations when the page loads
+    document.addEventListener('DOMContentLoaded', function () {
+        loadLocations();
+    });
+
+    // Also load locations when client data section is shown
+    document.getElementById('verifyMobile').addEventListener('click', function () {
+        // This will run after the verification, so locations will be loaded when needed
+        setTimeout(loadLocations, 100);
+    });
 </script>

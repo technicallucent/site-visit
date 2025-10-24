@@ -85,6 +85,221 @@ def logout():
 def dashboard():
     return render_template('dashboard.html')
 
+@app.route('/full-filter', methods=['GET', 'POST'])
+@login_required
+def full_filter_visit_logs():
+    # Fetch dropdown options
+    agents = User.query.all()
+    projects = Project.query.all()
+    statuses = ['Upcoming', 'Completed', 'Cancelled']
+    lead_sources = db.session.query(Client.lead_source).distinct().all()
+    bhk_options = db.session.query(Client.bhk_requirement).distinct().all()
+    budgets = db.session.query(Client.budget).distinct().all()
+    # Collect all preferred locations (JSON arrays like ["BKC","Worli"])
+    raw_locations = db.session.query(Client.preferred_location).distinct().all()
+
+    unique_locations = set()
+    for loc_entry in raw_locations:
+        if not loc_entry[0]:
+            continue
+        try:
+            loc_list = json.loads(loc_entry[0])
+            if isinstance(loc_list, list):
+                unique_locations.update(loc_list)
+            else:
+                unique_locations.add(loc_entry[0])
+        except Exception:
+            unique_locations.add(loc_entry[0])
+
+    locations = sorted(unique_locations)
+
+    current_locations = db.session.query(Client.current_location).distinct().all()
+    ethnicities = db.session.query(Client.ethnicity).distinct().all()
+    professions = db.session.query(Client.profession).distinct().all()
+
+    # Collect filters
+    filters = {
+        'agent': request.form.get('agent'),
+        'project': request.form.get('project'),
+        'status': request.form.get('status'),
+        'client_name': request.form.get('client_name', '').strip(),
+        'client_mobile': request.form.get('client_mobile', '').strip(),
+        'client_email': request.form.get('client_email', '').strip(),
+        'lead_source': request.form.get('lead_source'),
+        'lead_source_project': request.form.get('lead_source_project', '').strip(),
+        'bhk_requirement': request.form.get('bhk_requirement'),
+        'budget': request.form.get('budget'),
+        'preferred_location': request.form.get('preferred_location'),
+        'current_location': request.form.get('current_location'),
+        'building_name': request.form.get('building_name', '').strip(),
+        'preferred_projects': request.form.get('preferred_projects', '').strip(),
+        'ethnicity': request.form.get('ethnicity'),
+        'profession': request.form.get('profession'),
+        'client_notes': request.form.get('client_notes', '').strip(),
+        'telecallers': request.form.get('telecallers', '').strip(),
+        'visit_notes': request.form.get('visit_notes', '').strip(),
+        'start_date': request.form.get('start_date'),
+        'end_date': request.form.get('end_date'),
+    }
+    
+    # Base query
+    query = SiteVisit.query.join(Client).join(Project)
+
+    # Role-based restriction
+    if current_user.role == 'agent':
+        query = query.filter(
+            db.or_(
+                SiteVisit.agents_involved.contains(str(current_user.id)),
+                SiteVisit.created_by == current_user.id
+            )
+        )
+
+    # Apply filters
+    if filters['agent']:
+        query = query.filter(SiteVisit.agents_involved.contains(filters['agent']))
+
+    if filters['project']:
+        query = query.filter(SiteVisit.project_id == filters['project'])
+
+    if filters['status']:
+        query = query.filter(SiteVisit.status == filters['status'])
+
+    if filters['client_name']:
+        query = query.filter(Client.name.ilike(f"%{filters['client_name']}%"))
+
+    if filters['client_mobile']:
+        query = query.filter(Client.mobile.ilike(f"%{filters['client_mobile']}%"))
+
+    if filters['client_email']:
+        query = query.filter(Client.email.ilike(f"%{filters['client_email']}%"))
+
+    if filters['lead_source']:
+        query = query.filter(Client.lead_source == filters['lead_source'])
+
+    if filters['lead_source_project']:
+        query = query.filter(Client.lead_source_project.ilike(f"%{filters['lead_source_project']}%"))
+
+    if filters['bhk_requirement']:
+        query = query.filter(Client.bhk_requirement == filters['bhk_requirement'])
+
+    if filters['budget']:
+        query = query.filter(Client.budget == filters['budget'])
+
+    if filters['preferred_location']:
+        query = query.filter(Client.preferred_location.contains(filters['preferred_location']))
+
+
+    if filters['current_location']:
+        query = query.filter(Client.current_location == filters['current_location'])
+
+    if filters['building_name']:
+        query = query.filter(Client.building_name.ilike(f"%{filters['building_name']}%"))
+
+    if filters['preferred_projects']:
+        query = query.filter(Client.preferred_projects.contains(filters['preferred_projects']))
+
+    if filters['ethnicity']:
+        query = query.filter(Client.ethnicity == filters['ethnicity'])
+
+    if filters['profession']:
+        query = query.filter(Client.profession == filters['profession'])
+
+    if filters['client_notes']:
+        query = query.filter(Client.notes.ilike(f"%{filters['client_notes']}%"))
+
+    if filters['telecallers']:
+        query = query.filter(SiteVisit.telecallers_involved.contains(filters['telecallers']))
+
+    if filters['visit_notes']:
+        query = query.filter(SiteVisit.notes.ilike(f"%{filters['visit_notes']}%"))
+
+    if filters['start_date']:
+        try:
+            start_dt = datetime.strptime(filters['start_date'], '%Y-%m-%d')
+            query = query.filter(SiteVisit.visit_date >= start_dt)
+        except ValueError:
+            pass
+
+    if filters['end_date']:
+        try:
+            end_dt = datetime.strptime(filters['end_date'], '%Y-%m-%d')
+            query = query.filter(SiteVisit.visit_date <= end_dt)
+        except ValueError:
+            pass
+
+    visits = query.order_by(SiteVisit.visit_date.desc()).all()
+
+    # Build results
+    result = []
+    for visit in visits:
+        agent_names = []
+        try:
+            agents_list = json.loads(visit.agents_involved or '[]')
+            agent_objs = User.query.filter(User.id.in_(agents_list)).all()
+            agent_names = [agent.name for agent in agent_objs]
+        except Exception as e:
+            print("Error parsing agents:", e)
+        preferred_projects = []
+        try:
+            if visit.client.preferred_projects:
+                project_ids = json.loads(visit.client.preferred_projects)
+                project_objs = Project.query.filter(Project.id.in_(project_ids)).all()
+                preferred_projects = [p.name for p in project_objs]
+        except Exception as e:
+            print("Error parsing preferred projects:", e)
+
+        # Decode preferred locations
+        preferred_locations_display = ""
+        try:
+            if visit.client.preferred_location:
+                loc_list = json.loads(visit.client.preferred_location)
+                if isinstance(loc_list, list):
+                    preferred_locations_display = ", ".join(loc_list)
+                else:
+                    preferred_locations_display = visit.client.preferred_location
+        except Exception as e:
+            preferred_locations_display = visit.client.preferred_location or ''
+        result.append({
+            'id': visit.id,
+            'agent': ', '.join(agent_names),
+            'client_name': visit.client.name,
+            'client_mobile': visit.client.mobile,
+            'client_email': visit.client.email,
+            'lead_source': visit.client.lead_source,
+            'lead_source_project': visit.client.lead_source_project,
+            'bhk_requirement': visit.client.bhk_requirement,
+            'budget': visit.client.budget,
+            'preferred_location': preferred_locations_display,
+            'current_location': visit.client.current_location,
+            'building_name': visit.client.building_name,
+            'preferred_projects': ', '.join(preferred_projects),
+            'ethnicity': visit.client.ethnicity,
+            'profession': visit.client.profession,
+            'client_notes': visit.client.notes,
+            'project_name': visit.project.name,
+            'visit_date': visit.visit_date.strftime('%b %d, %Y'),
+            'status': visit.status or 'Upcoming',
+            'telecallers': visit.telecallers_involved,
+            'visit_notes': visit.notes,
+            'can_delete': current_user.role == 'admin' or current_user.id == visit.created_by
+        })
+
+    return render_template(
+        'full_advanced_visit_logs.html',
+        visits=result,
+        agents=agents,
+        projects=projects,
+        statuses=statuses,
+        lead_sources=[l[0] for l in lead_sources],
+        bhk_options=[b[0] for b in bhk_options],
+        budgets=[b[0] for b in budgets],
+        locations=locations,
+        current_locations=[l[0] for l in current_locations],
+        ethnicities=[e[0] for e in ethnicities],
+        professions=[p[0] for p in professions],
+        filters=filters
+    )
+
 @app.route('/api/visit-logs')
 @login_required
 def get_visit_logs():
@@ -170,20 +385,39 @@ def get_visit_logs():
 def visit_details(visit_id):
     visit = SiteVisit.query.get_or_404(visit_id)
     print(visit.agents_involved)
-    
+
+    # Access control: only agents involved or creator can view
     if current_user.role == 'agent':
         agents_involved = json.loads(visit.agents_involved) if visit.agents_involved else []
         if current_user.id not in [int(x) for x in agents_involved] and visit.created_by != current_user.id:
             flash('Access denied', 'danger')
             return redirect(url_for('dashboard'))
-    
+
     # Get previous visits for this client (excluding current visit)
     previous_visits = SiteVisit.query.filter(
         SiteVisit.client_id == visit.client_id,
         SiteVisit.id != visit.id
     ).order_by(SiteVisit.visit_date.desc()).all()
-    
-    return render_template('visit_details.html', visit=visit, previous_visits=previous_visits)
+
+    # ✅ Convert preferred_location JSON -> location names
+    preferred_location_names = []
+    if visit.client.preferred_location:
+        try:
+            loc_names = json.loads(visit.client.preferred_location)
+            preferred_location_names = [
+            loc.name for loc in Location.query.filter(Location.name.in_(loc_names)).all()
+            ]
+        except Exception as e:
+            print("Error decoding preferred_location:", e)
+
+    # Pass clean location names to template
+    return render_template(
+        'visit_details.html',
+        visit=visit,
+        previous_visits=previous_visits,
+        preferred_location_names=preferred_location_names
+    )
+
 @app.route('/visit/<int:visit_id>/update_details', methods=['POST'])
 @login_required
 def update_visit_details(visit_id):
@@ -275,7 +509,7 @@ def log_visit():
         client = Client.query.filter_by(mobile=mobile).first()
         
         if client:
-            # Get previous visits - FIXED: Query SiteVisit directly instead of using relationship
+            # Fetch previous visits
             previous_visits_query = SiteVisit.query.filter_by(client_id=client.id).order_by(SiteVisit.visit_date.desc()).all()
             previous_visits = []
             
@@ -285,7 +519,8 @@ def log_visit():
                     try:
                         agent_ids = json.loads(visit.agents_involved)
                         for agent_id in agent_ids:
-                            agent = User.query.get(agent_id)
+                            # Using Session.get() instead of deprecated Query.get()
+                            agent = db.session.get(User, agent_id)
                             if agent:
                                 agents_list.append(agent.name)
                     except:
@@ -297,7 +532,28 @@ def log_visit():
                     'status': visit.status,
                     'agents': ', '.join(agents_list)
                 })
+
+            # Parse locations stored as JSON arrays of names
+            import json
             
+            preferred_location_name = None
+            if client.preferred_location:
+                try:
+                    loc_list = json.loads(client.preferred_location)  # e.g., ["Bandra"]
+                    if loc_list:
+                        preferred_location_name = loc_list[0]
+                except json.JSONDecodeError:
+                    preferred_location_name = client.preferred_location  # fallback
+            
+            current_location_name = None
+            if client.current_location:
+                try:
+                    loc_list = json.loads(client.current_location)
+                    if loc_list:
+                        current_location_name = loc_list[0]
+                except json.JSONDecodeError:
+                    current_location_name = client.current_location  # fallback
+
             return jsonify({
                 'exists': True,
                 'client': {
@@ -308,8 +564,9 @@ def log_visit():
                     'lead_source_project': client.lead_source_project or '',
                     'bhk_requirement': client.bhk_requirement or '',
                     'budget': client.budget or '',
-                    'preferred_location': client.preferred_location or '',
-                    'current_location': client.current_location or '',
+                    'preferred_location': preferred_location_name or '',
+                    'current_location': current_location_name or '',
+                    'profession':client.profession or'',
                     'building_name': client.building_name or '',
                     'preferred_projects': client.preferred_projects or '[]',
                     'notes': client.notes or ''
@@ -319,94 +576,13 @@ def log_visit():
         else:
             return jsonify({'exists': False})
     
-    projects = Project.query.all()
+    # GET request: render form
+    projects = Project.query.order_by(Project.name).all()
     users = User.query.filter_by(role='agent').all()
-    return render_template('log_visit.html', projects=projects, users=users)
-# @app.route('/save-visit', methods=['POST'])
-# @login_required
-# def save_visit():
-#     try:
-#         data = request.get_json()
-#         print("Received data:", data)  # Debug print
-        
-#         # Validate required fields
-#         if not data.get('name') or not data.get('mobile') or not data.get('visit_date') or not data.get('project_id'):
-#             return jsonify({'success': False, 'message': 'Missing required fields'})
-        
-#         # Check if client exists
-#         client = Client.query.filter_by(mobile=data['mobile']).first()
-        
-#         if not client:
-#             # Create new client
-#             client = Client(
-#                 name=data['name'],
-#                 mobile=data['mobile'],
-#                 email=data.get('email', ''),
-#                 secondary_number=data.get('secondary_number', ''),
-#                 lead_source=data.get('lead_source', ''),
-#                 lead_source_project=data.get('lead_source_project', ''),
-#                 bhk_requirement=data.get('bhk_requirement', ''),
-#                 budget=data.get('budget', ''),
-#                 preferred_location=data.get('preferred_location', ''),
-#                 current_location=data.get('current_location', ''),
-#                 building_name=data.get('building_name', ''),
-#                 preferred_projects=json.dumps(data.get('preferred_projects', [])),
-#                 notes=data.get('notes', ''),
-#                 created_by=current_user.id
-#             )
-#             db.session.add(client)
-#             db.session.flush()  # Get the client ID without committing
-#         else:
-#             # Update existing client
-#             client.name = data['name']
-#             client.email = data.get('email', '')
-#             client.secondary_number = data.get('secondary_number', '')
-#             client.lead_source = data.get('lead_source', '')
-#             client.lead_source_project = data.get('lead_source_project', '')
-#             client.bhk_requirement = data.get('bhk_requirement', '')
-#             client.budget = data.get('budget', '')
-#             client.preferred_location = data.get('preferred_location', '')
-#             client.current_location = data.get('current_location', '')
-#             client.building_name = data.get('building_name', '')
-#             client.preferred_projects = json.dumps(data.get('preferred_projects', []))
-#             client.notes = data.get('notes', '')
-        
-#         # Process agents involved
-#         agents_involved = data.get('agents_involved', [])
-#         if isinstance(agents_involved, str):
-#             agents_involved = [agents_involved] if agents_involved else []
-        
-#         # Ensure current user is included
-#         if str(current_user.id) not in agents_involved:
-#             agents_involved.append(str(current_user.id))
-        
-#         # Process telecallers
-#         telecallers = data.get('telecallers_involved', '')
-#         if telecallers:
-#             telecallers_list = [t.strip() for t in telecallers.split(',') if t.strip()]
-#         else:
-#             telecallers_list = []
-        
-#         # Create site visit
-#         visit = SiteVisit(
-#             client_id=client.id,
-#             visit_date=datetime.strptime(data['visit_date'], '%Y-%m-%d'),
-#             project_id=int(data['project_id']),
-#             agents_involved=json.dumps(agents_involved),
-#             telecallers_involved=json.dumps(telecallers_list),
-#             notes=data.get('visit_notes', ''),
-#             created_by=current_user.id
-#         )
-        
-#         db.session.add(visit)
-#         db.session.commit()
-        
-#         return jsonify({'success': True, 'message': 'Site visit logged successfully'})
-    
-#     except Exception as e:
-#         db.session.rollback()
-#         print("Error saving visit:", str(e))  # Debug print
-#         return jsonify({'success': False, 'message': f'Error: {str(e)}'})
+    locations = Location.query.filter_by(is_active=True).all()  # for dropdown if needed
+    return render_template('log_visit.html', projects=projects, users=users, locations=locations)
+
+
 @app.route('/save-visits', methods=['POST'])
 @login_required
 def save_visits():
@@ -428,7 +604,11 @@ def save_visits():
         
         # Check if client exists
         client = Client.query.filter_by(mobile=data['mobile']).first()
-        
+        preferred_locations = data.get('preferred_location', [])
+        if isinstance(preferred_locations, list):
+            preferred_locations_json = json.dumps(preferred_locations)
+        else:
+            preferred_locations_json = json.dumps([preferred_locations]) if preferred_locations else json.dumps([])
         if not client:
             # Create new client
             client = Client(
@@ -440,12 +620,13 @@ def save_visits():
                 lead_source_project=data.get('lead_source_project', ''),
                 bhk_requirement=data.get('bhk_requirement', ''),
                 budget=data.get('budget', ''),
-                preferred_location=data.get('preferred_location', ''),
+                preferred_location=preferred_locations_json,
                 current_location=data.get('current_location', ''),
                 building_name=data.get('building_name', ''),
                 preferred_projects=json.dumps(data.get('preferred_projects', [])),
                 notes=data.get('notes', ''),
                 ethnicity=data.get('ethnicity', ''),
+                profession=data.get('profession', ''),
                 created_by=current_user.id
             )
             db.session.add(client)
@@ -460,12 +641,13 @@ def save_visits():
             client.lead_source_project = data.get('lead_source_project', '')
             client.bhk_requirement = data.get('bhk_requirement', '')
             client.budget = data.get('budget', '')
-            client.preferred_location = data.get('preferred_location', '')
-            client.current_location = data.get('current_location', '')
-            client.building_name = data.get('building_name', '')
             client.preferred_projects = json.dumps(data.get('preferred_projects', []))
+            client.current_location = data.get('current_location', '')
+            client.preferred_location = preferred_locations_json
+            client.building_name = data.get('building_name', '')
             client.notes = data.get('notes', '')
             client.ethnicity = data.get('ethnicity', '')
+            client.profession = data.get('profession', '') 
             print(f"Updated existing client with ID: {client.id}")
         
         # Process and save all visits

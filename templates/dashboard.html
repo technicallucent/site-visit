@@ -12,72 +12,126 @@
 </div>
 <br>
 <!-- Filters Card -->
+<!-- Filters Card -->
 <div class="row mb-4">
   <div class="col">
-    <div class="">
-      <h5 class="mb-0 text-black p-3">
-        <i class="fas fa-filter me-2 text-black"></i>Filter Visit Logs
-      </h5>
-    </div>
     <div class="card">
-      <div class="card-body">
-        <div class="d-flex flex-wrap gap-3 justify-content-between">
-          {% if current_user.role == 'admin' %}
-          <div class="col-md-3 col-12 pt-3">
-            <label class="form-label">Agent</label>
-            <select class="form-select" id="agentFilter">
-              <option value="">Select Agent</option>
-              {% for agent in agents %}
-              <option value="{{ agent.id }}">{{ agent.name }}</option>
-              {% endfor %}
-            </select>
-          </div>
-          {% endif %}
-          <div class="col-md-3 col-12 pt-3 d-none">
-            <label class="form-label">Agent</label>
-            <select class="form-select" id="agentFilter">
-              <option value="">Select Agent</option>
-              {% for agent in agents %}
-              <option value="{{ agent.id }}">{{ agent.name }}</option>
-              {% endfor %}
-            </select>
-          </div>
-          <div class="col-md-3 col-12 pt-3">
-            <label class="form-label">Project</label>
-            <select class="form-select" id="projectFilter">
-              <option value="">Select Project</option>
-              {% for project in projects %}
-              <option value="{{ project.id }}">{{ project.name }}</option>
-              {% endfor %}
-            </select>
-          </div>
-          <div class="col-md-2 col-6 pt-3">
-            <label class="form-label">Start Date</label>
-            <input type="date" class="form-control" id="startDate" />
-          </div>
-          <div class="col-md-2 col-6 pt-3">
-            <label class="form-label">End Date</label>
-            <input type="date" class="form-control" id="endDate" />
-          </div>
-          <div class="col-md-2 col-12 d-flex align-items-end flex-row flex-wrap gap-2 pt-3">
-            <button
-              class="btn btn-outline-secondary me-2 d-flex align-items-center flex-grow-1 flex-md-grow-0"
-              id="resetFilters"
-            >
-              <i class="fas fa-refresh me-1"></i>Reset
-            </button>
-            <button
-              class="btn btn-primary d-flex align-items-center flex-grow-1 flex-md-grow-0"
-              id="applyFilters"
-            >
-              <i class="fas fa-search me-1"></i>Apply
-            </button>
+      <div class="card-header d-flex justify-content-between align-items-center" style="cursor:pointer;" data-bs-toggle="collapse" data-bs-target="#advancedFilters" aria-expanded="false">
+        <h5 class="mb-0 text-black">
+          <i class="fas fa-filter me-2 text-black"></i>Advanced Filter
+        </h5>
+        <i class="fas fa-chevron-down" id="filterChevron"></i>
+      </div>
+      <div class="collapse" id="advancedFilters">
+        <div class="card-body">
+          <div class="row g-3">
+            <!-- Agent Filter -->
+            {% if current_user.role == 'admin' %}
+            <div class="col-md-3">
+              <label class="form-label">Agent</label>
+              <select class="form-select" id="agentFilter">
+                <option value="">Select Agent</option>
+                {% for agent in agents %}
+                <option value="{{ agent.id }}">{{ agent.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            {% endif %}
+
+            <!-- Project Filter -->
+            <div class="col-md-3">
+              <label class="form-label">Project</label>
+              <select class="form-select" id="projectFilter">
+                <option value="">Select Project</option>
+                {% for project in projects %}
+                <option value="{{ project.id }}">{{ project.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <!-- Status Filter -->
+            <div class="col-md-3">
+              <label class="form-label">Status</label>
+              <select class="form-select" id="statusFilter">
+                <option value="">Select Status</option>
+                <option value="Upcoming">Upcoming</option>
+                <option value="Completed">Completed</option>
+                <option value="Cancelled">Cancelled</option>
+              </select>
+            </div>
+
+            <!-- BHK Requirement Filter -->
+            <div class="col-md-3">
+              <label class="form-label">BHK Requirement</label>
+              <select class="form-select" id="bhkFilter">
+                <option value="">Select BHK</option>
+                <option value="1BHK">1BHK</option>
+                <option value="2BHK">2BHK</option>
+                <option value="3BHK">3BHK</option>
+                <option value="4BHK+">4BHK+</option>
+              </select>
+            </div>
+
+            <!-- Budget Filter -->
+            <div class="col-md-3">
+              <label class="form-label">Budget</label>
+              <select class="form-select" id="budgetFilter">
+                <option value="">Select Budget</option>
+                <option value="0-50L">0-50L</option>
+                <option value="50L-1Cr">50L-1Cr</option>
+                <option value="1Cr-2Cr">1Cr-2Cr</option>
+                <option value="2Cr+">2Cr+</option>
+              </select>
+            </div>
+
+            <!-- Preferred Location Filter -->
+            <div class="col-md-3">
+              <label class="form-label">Preferred Location</label>
+              <select class="form-select" id="locationFilter">
+                <option value="">Select Location</option>
+                {% for loc in locations %}
+                <option value="{{ loc.name }}">{{ loc.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <!-- Lead Source Filter -->
+            <div class="col-md-3">
+              <label class="form-label">Lead Source</label>
+              <select class="form-select" id="leadSourceFilter">
+                <option value="">Select Lead Source</option>
+                <option value="Magicbricks">Magicbricks</option>
+                <option value="Online Ads">Online Ads</option>
+                <option value="Referral">Referral</option>
+              </select>
+            </div>
+
+            <!-- Date Filters -->
+            <div class="col-md-2">
+              <label class="form-label">Start Date</label>
+              <input type="date" class="form-control" id="startDate" />
+            </div>
+            <div class="col-md-2">
+              <label class="form-label">End Date</label>
+              <input type="date" class="form-control" id="endDate" />
+            </div>
+
+            <!-- Buttons -->
+            <div class="col-12 d-flex gap-2 mt-2">
+              <button class="btn btn-outline-secondary" id="resetFilters">
+                <i class="fas fa-refresh me-1"></i> Reset
+              </button>
+              <button class="btn btn-primary" id="applyFilters">
+                <i class="fas fa-search me-1"></i> Apply
+              </button>
+            </div>
           </div>
         </div>
       </div>
     </div>
   </div>
 </div>
+
 
 <!-- Visit Logs Table -->
 <div class="row">

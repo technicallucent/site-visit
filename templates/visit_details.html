@@ -24,73 +24,75 @@
                 </div>
                 <div class="card-body">
                     <div class="row">
-                  <div class="col-md-6" >
-    <strong>Visit Date:</strong>
-    {% set can_edit = false %}
-{% if current_user.role == 'admin' %}
-    {% set can_edit = true %}
-{% elif current_user.role == 'agent' %}
-    {% set agents_involved = visit.agents_involved|from_json if visit.agents_involved else [] %}
-    {% if current_user.id in agents_involved or current_user.id == visit.created_by %}
-        {% set can_edit = true %}
-    {% endif %}
-{% endif %}
-    {% if can_edit %}
-    <form method="POST" action="{{ url_for('update_visit_details', visit_id=visit.id) }}">
-        <input type="date" name="visit_date" class="form-control form-control-sm mb-2" 
-               value="{{ visit.visit_date.strftime('%Y-%m-%d') }}" required>
-        <button type="submit" class="btn btn-sm btn-dark">Update Visit Date</button>
-    </form>
-    {% else %}
-    <p>{{ visit.visit_date.strftime('%B %d, %Y') }}</p>
-    {% endif %}
-</div>
+                        <div class="col-md-6">
+                            <strong>Visit Date:</strong>
+                            {% set can_edit = false %}
+                            {% if current_user.role == 'admin' %}
+                            {% set can_edit = true %}
+                            {% elif current_user.role == 'agent' %}
+                            {% set agents_involved = visit.agents_involved|from_json if visit.agents_involved else [] %}
+                            {% if current_user.id in agents_involved or current_user.id == visit.created_by %}
+                            {% set can_edit = true %}
+                            {% endif %}
+                            {% endif %}
+                            {% if can_edit %}
+                            <form method="POST" action="{{ url_for('update_visit_details', visit_id=visit.id) }}">
+                                <input type="date" name="visit_date" class="form-control form-control-sm mb-2"
+                                    value="{{ visit.visit_date.strftime('%Y-%m-%d') }}" required>
+                                <button type="submit" class="btn btn-sm btn-dark">Update Visit Date</button>
+                            </form>
+                            {% else %}
+                            <p>{{ visit.visit_date.strftime('%B %d, %Y') }}</p>
+                            {% endif %}
+                        </div>
 
                         <div class="col-md-6">
                             <strong>Project:</strong>
                             <p>{{ visit.project.name }}</p>
                         </div>
-                       <div class="col-md-6">
-    <strong>Status:</strong>
-    <!-- <p>
+                        <div class="col-md-6">
+                            <strong>Status:</strong>
+                            <!-- <p>
         <span class="badge bg-{{ 'success' if visit.status == 'Completed' else 'warning' if visit.status == 'Scheduled' else 'danger' }}">{{ visit.status }}</span>
     </p> -->
 
-{% set can_edit = false %}
-{% if current_user.role == 'admin' %}
-    {% set can_edit = true %}
-{% elif current_user.role == 'agent' %}
-    {% set agents_involved = visit.agents_involved|from_json if visit.agents_involved else [] %}
-    {% if current_user.id in agents_involved or current_user.id == visit.created_by %}
-        {% set can_edit = true %}
-    {% endif %}
-{% endif %}
+                            {% set can_edit = false %}
+                            {% if current_user.role == 'admin' %}
+                            {% set can_edit = true %}
+                            {% elif current_user.role == 'agent' %}
+                            {% set agents_involved = visit.agents_involved|from_json if visit.agents_involved else [] %}
+                            {% if current_user.id in agents_involved or current_user.id == visit.created_by %}
+                            {% set can_edit = true %}
+                            {% endif %}
+                            {% endif %}
 
 
-    {% if can_edit %}
-    <form method="POST" action="{{ url_for('update_visit_status', visit_id=visit.id) }}">
-        <select name="status" class="form-select form-select-sm mb-2" style="width:max-content; border:green solid 1px;" required>
-            {% for status_option in ['Upcoming', 'Completed', 'Cancelled'] %}
-                <option class="" value="{{ status_option }}" {% if visit.status == status_option %}selected{% endif %}>{{ status_option }}</option>
-            {% endfor %}
-        </select>
-        <button type="submit" class="btn btn-sm btn-dark">Update Status</button>
-    </form>
-    {% endif %}
-</div>
+                            {% if can_edit %}
+                            <form method="POST" action="{{ url_for('update_visit_status', visit_id=visit.id) }}">
+                                <select name="status" class="form-select form-select-sm mb-2"
+                                    style="width:max-content; border:green solid 1px;" required>
+                                    {% for status_option in ['Upcoming', 'Completed', 'Cancelled'] %}
+                                    <option class="" value="{{ status_option }}" {% if visit.status==status_option
+                                        %}selected{% endif %}>{{ status_option }}</option>
+                                    {% endfor %}
+                                </select>
+                                <button type="submit" class="btn btn-sm btn-dark">Update Status</button>
+                            </form>
+                            {% endif %}
+                        </div>
 
                         <div class="col-md-6">
                             <strong>Created By:</strong>
                             <p>
                                 {% for user in agents %}
-                                    {% if user.id == visit.created_by %}
-                                        {{ user.name }}
-                                    {% endif %}
+                                {% if user.id == visit.created_by %}
+                                {{ user.name }}
+                                {% endif %}
                                 {% endfor %}
                             </p>
                         </div>
                     </div>
-                    
+
                     {% if visit.agents_involved %}
                     <div class="row mt-3">
                         <div class="col-12">
@@ -98,17 +100,17 @@
                             <p>
                                 {% set agents_involved = visit.agents_involved|from_json %}
                                 {% for agent_id in agents_involved %}
-                                    {% for user in agents %}
-                                        {% if user.id == agent_id|int %}
-                                            <span class="badge bg-info me-1">{{ user.name }}</span>
-                                        {% endif %}
-                                    {% endfor %}
+                                {% for user in agents %}
+                                {% if user.id == agent_id|int %}
+                                <span class="badge bg-info me-1">{{ user.name }}</span>
+                                {% endif %}
+                                {% endfor %}
                                 {% endfor %}
                             </p>
                         </div>
                     </div>
                     {% endif %}
-                    
+
                     {% if visit.telecallers_involved %}
                     <div class="row mt-3">
                         <div class="col-12">
@@ -116,13 +118,13 @@
                             <p>
                                 {% set telecallers = visit.telecallers_involved|from_json %}
                                 {% for telecaller in telecallers %}
-                                    <span class="badge bg-secondary me-1">{{ telecaller }}</span>
+                                <span class="badge bg-secondary me-1">{{ telecaller }}</span>
                                 {% endfor %}
                             </p>
                         </div>
                     </div>
                     {% endif %}
-                    
+
                     {% if visit.notes %}
                     <div class="row mt-3">
                         <div class="col-12">
@@ -145,39 +147,39 @@
                 </div>
                 <div class="card-body">
                     <h6 class="border-bottom pb-2">{{ visit.client.name }}</h6>
-                    
+
                     <div class="mb-2">
                         <small class="text-muted">Mobile:</small>
                         <p class="mb-1">{{ visit.client.mobile }}</p>
                     </div>
-                    
+
                     {% if visit.client.secondary_number %}
                     <div class="mb-2">
                         <small class="text-muted">Secondary Number:</small>
                         <p class="mb-1">{{ visit.client.secondary_number }}</p>
                     </div>
                     {% endif %}
-                    
+
                     {% if visit.client.email %}
                     <div class="mb-2">
                         <small class="text-muted">Email:</small>
                         <p class="mb-1">{{ visit.client.email }}</p>
                     </div>
                     {% endif %}
-                    
+
                     {% if visit.client.lead_source %}
                     <div class="mb-2">
                         <small class="text-muted">Lead Source:</small>
                         <p class="mb-1">{{ visit.client.lead_source }}</p>
                     </div>
                     {% endif %}
-                         {% if visit.client.current_location %}
+                    {% if visit.client.current_location %}
                     <div class="mb-2">
                         <small class="text-muted">Current Location:</small>
                         <p class="mb-1">{{ visit.client.current_location }}</p>
                     </div>
                     {% endif %}
-                    
+
                     {% if visit.client.building_name %}
                     <div class="mb-2">
                         <small class="text-muted">Building Name:</small>
@@ -190,12 +192,20 @@
                         <p class="mb-1">{{ visit.client.lead_source_project }}</p>
                     </div>
                     {% endif %}
-                        {% if visit.client.ethnicity %}
+                    {% if visit.client.ethnicity %}
                     <div class="mb-2">
                         <small class="text-muted">Ethnicity:</small>
                         <p class="mb-1">{{ visit.client.ethnicity }}</p>
                     </div>
                     {% endif %}
+                    <!-- Add this inside the Client Information Card body -->
+                    {% if visit.client.profession %}
+                    <div class="mb-2">
+                        <small class="text-muted">Profession:</small>
+                        <p class="mb-1">{{ visit.client.profession }}</p>
+                    </div>
+                    {% endif %}
+
                 </div>
             </div>
 
@@ -213,39 +223,40 @@
                         <p class="mb-1"><span class="badge bg-primary">{{ visit.client.bhk_requirement }}</span></p>
                     </div>
                     {% endif %}
-                    
+
                     {% if visit.client.budget %}
                     <div class="mb-2">
                         <small class="text-muted">Budget:</small>
                         <p class="mb-1">{{ visit.client.budget }}</p>
                     </div>
                     {% endif %}
-                    
-                    {% if visit.client.preferred_location %}
+
+                    {% if preferred_location_names %}
                     <div class="mb-2">
                         <small class="text-muted">Preferred Location:</small>
-                        <p class="mb-1">{{ visit.client.preferred_location }}</p>
+                        <p class="mb-1">{{ preferred_location_names | join(', ') }}</p>
                     </div>
                     {% endif %}
-                    
-               
-                    
+
+
+
+
                     {% if visit.client.preferred_projects %}
                     <div class="mb-2">
                         <small class="text-muted">Preferred Projects:</small>
                         <p class="mb-1">
                             {% set preferred_projects = visit.client.preferred_projects|from_json %}
                             {% for project_id in preferred_projects %}
-                                {% for project in projects %}
-                                    {% if project.id == project_id|int %}
-                                        <span class="badge bg-secondary me-1">{{ project.name }}</span>
-                                    {% endif %}
-                                {% endfor %}
+                            {% for project in projects %}
+                            {% if project.id == project_id|int %}
+                            <span class="badge bg-secondary me-1">{{ project.name }}</span>
+                            {% endif %}
+                            {% endfor %}
                             {% endfor %}
                         </p>
                     </div>
                     {% endif %}
-                    
+
                     {% if visit.client.notes %}
                     <div class="mb-2">
                         <small class="text-muted">Client Notes:</small>
@@ -266,9 +277,10 @@
                     <h5 class="card-title mb-0">
                         <i class="fas fa-history me-2"></i>Previous Site Visits
                     </h5>
-                    <a href="{{ url_for('log_visit') }}?mobile={{ visit.client.mobile }}" class="btn btn-success bg-white ">
-    <i class="fas fa-plus me-1"></i> Add Another Visit for {{ visit.client.name }}
-</a>
+                    <a href="{{ url_for('log_visit') }}?mobile={{ visit.client.mobile }}"
+                        class="btn btn-success bg-white ">
+                        <i class="fas fa-plus me-1"></i> Add Another Visit for {{ visit.client.name }}
+                    </a>
 
                 </div>
                 <div class="card-body">
@@ -287,15 +299,17 @@
                                 <tr>
                                     <td>{{ prev_visit.visit_date.strftime('%b %d, %Y') }}</td>
                                     <td>{{ prev_visit.project.name }}</td>
-                                    <td><span class="badge bg-{{ 'success' if prev_visit.status == 'Completed' else 'warning' if prev_visit.status == 'Scheduled' else 'danger' }}">{{ prev_visit.status }}</span></td>
+                                    <td><span
+                                            class="badge bg-{{ 'success' if prev_visit.status == 'Completed' else 'warning' if prev_visit.status == 'Scheduled' else 'danger' }}">{{
+                                            prev_visit.status }}</span></td>
                                     <td>
                                         {% set prev_agents = prev_visit.agents_involved|from_json %}
                                         {% for agent_id in prev_agents %}
-                                            {% for user in agents %}
-                                                {% if user.id == agent_id|int %}
-                                                    {{ user.name }}{% if not loop.last %}, {% endif %}
-                                                {% endif %}
-                                            {% endfor %}
+                                        {% for user in agents %}
+                                        {% if user.id == agent_id|int %}
+                                        {{ user.name }}{% if not loop.last %}, {% endif %}
+                                        {% endif %}
+                                        {% endfor %}
                                         {% endfor %}
                                     </td>
                                 </tr>

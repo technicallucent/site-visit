@@ -48,10 +48,10 @@ document.getElementById('visitsForm').addEventListener('submit', function(e) {
         email: document.querySelector('input[name="email"]').value,
         secondary_number: document.querySelector('input[name="secondary_number"]').value,
         lead_source: document.querySelector('select[name="lead_source"]').value,
-        lead_source_project: document.querySelector('input[name="lead_source_project"]').value,
+        lead_source_project: document.querySelector('select[name="lead_source_project"]').value,
         bhk_requirement: document.querySelector('select[name="bhk_requirement"]').value,
         budget: document.querySelector('select[name="budget"]').value,
-        preferred_location: document.querySelector('select[name="preferred_location"]').value,
+        profession: document.querySelector('select[name="profession"]').value, 
         current_location: document.querySelector('select[name="current_location"]').value,
         building_name: document.querySelector('input[name="building_name"]').value,
         ethnicity: document.querySelector('select[name="ethnicity"]').value,
@@ -62,7 +62,8 @@ document.getElementById('visitsForm').addEventListener('submit', function(e) {
     // Handle multiple select fields for client
     const preferredProjectsSelect = document.querySelector('select[name="preferred_projects"]');
     data.preferred_projects = $(preferredProjectsSelect).val() || [];
-
+    const preferredLocationSelect = document.querySelector('select[name="preferred_location[]"]');
+    data.preferred_location = $(preferredLocationSelect).val() || [];
     // Collect visits data - FIXED: using the same visitCards variable
     visitCards.forEach((card, index) => {
         const visitData = {
