@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Upload Clients & Site Visits</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .container { max-width: 600px; margin: auto; }
+        h2 { text-align: center; }
+        input[type=file] { margin: 15px 0; }
+        button { padding: 10px 20px; font-size: 16px; }
+        .success { color: green; }
+        .error { color: red; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>Upload Clients & Site Visits CSV/Excel</h2>
+    <form id="uploadForm" enctype="multipart/form-data">
+        <input type="file" name="file" id="fileInput" accept=".csv,.xls,.xlsx" required>
+        <br>
+        <button type="submit">Upload</button>
+    </form>
+    <div id="response"></div>
+</div>
+
+<script>
+document.getElementById('uploadForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const fileInput = document.getElementById('fileInput');
+    if (!fileInput.files.length) return alert('Select a file!');
+
+    const formData = new FormData();
+    formData.append('file', fileInput.files[0]);
+
+    const responseDiv = document.getElementById('response');
+    responseDiv.innerHTML = 'Uploading...';
+
+    try {
+        const res = await fetch('/upload-data', {
+            method: 'POST',
+            body: formData
+        });
+        const data = await res.json();
+        if (data.success) {
+            responseDiv.innerHTML = `<p class="success">${data.message}</p>`;
+        } else {
+            responseDiv.innerHTML = `<p class="error">${data.message}</p>`;
+        }
+    } catch (err) {
+        responseDiv.innerHTML = `<p class="error">Upload failed. Try again.</p>`;
+        console.error(err);
+    }
+});
+</script>
+</body>
+</html>

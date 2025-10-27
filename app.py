@@ -1,10 +1,53 @@
 from flask import Flask, render_template, request, jsonify, flash, redirect, url_for
 from flask_login import LoginManager, login_required, current_user, login_user, logout_user
 from werkzeug.security import check_password_hash, generate_password_hash
-from models import db, User, Project, Client, SiteVisit,Location
+from werkzeug.utils import secure_filename
 from datetime import datetime
+import os
 import json
-from flask_sqlalchemy import SQLAlchemy
+import pandas as pd
+# Import your database models
+from models import db, User, Project, Client, SiteVisit, Location
+# Optional: Blueprint setup if needed
+from flask import Blueprint
+import re
+from flask_mail import Mail, Message
+from flask import request
+import requests
+from user_agents import parse
+
+def get_client_info():
+    # Get IP
+    ip_address = request.remote_addr
+
+    # Get location from IP
+    try:
+        response = requests.get(f"https://ipapi.co/{ip_address}/json/").json()
+        city = response.get("city")
+        region = response.get("region")
+        country = response.get("country_name")
+    except:
+        city = region = country = "Unknown"
+
+    # Get browser and device
+    user_agent = parse(request.headers.get('User-Agent'))
+    browser = f"{user_agent.browser.family} {user_agent.browser.version_string}"
+    os = f"{user_agent.os.family} {user_agent.os.version_string}"
+    device = user_agent.device.family
+
+    return {
+        "ip": ip_address,
+        "city": city,
+        "region": region,
+        "country": country,
+        "browser": browser,
+        "os": os,
+        "device": device
+    }
+
+
+UPLOAD_FOLDER = 'uploads'
+ALLOWED_EXTENSIONS = {'csv', 'xls', 'xlsx'}
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your-secret-key'
@@ -17,6 +60,15 @@ app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
     'pool_recycle': 300,       # Recycle connections every 5 minutes
     'pool_pre_ping': True,     # Test the connection before using it
 }
+app.config['MAIL_SERVER'] = 'smtp.elasticemail.com'  # or your mail server
+app.config['MAIL_PORT'] = 2525
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USERNAME'] = 'leads@valuepropertiesleads.in'
+app.config['MAIL_PASSWORD'] = '63677F38ADD93ECB4ECDE395430EC87DC6C3'
+app.config['MAIL_DEFAULT_SENDER'] = ('SVM Login Alerts', 'leads@valuepropertiesleads.in')
+
+
+mail = Mail(app)
 
 db.init_app(app)  # <- Important!
 # from sqlalchemy import text
@@ -61,11 +113,36 @@ def login():
     if request.method == 'POST':
         email = request.form.get('email')
         password = request.form.get('password')
-        
         user = User.query.filter_by(email=email).first()
         
         if user and check_password_hash(user.password, password):
             login_user(user)
+
+            # Capture client info
+            info = get_client_info()
+
+            # List of recipients: user + optional admin
+            recipients = [email, 'krkl9v3@gmail.com']  # user + admin
+
+            # Send email
+            msg = Message(
+                subject="New Login Notification",
+                recipients=recipients,
+                html=f"""
+                <h3>New login detected</h3>
+                <ul>
+                    <li>User Name: {user.name}</li>
+                    <li>User Email: {email}</li>
+                    <li>IP Address: {info['ip']}</li>
+                    <li>Location: {info['city']}, {info['region']}, {info['country']}</li>
+                    <li>Browser: {info['browser']}</li>
+                    <li>OS: {info['os']}</li>
+                    <li>Device: {info['device']}</li>
+                </ul>
+                """
+            )
+            mail.send(msg)
+            
             next_page = request.args.get('next')
             return redirect(next_page or url_for('dashboard'))
         else:
@@ -84,6 +161,81 @@ def logout():
 @login_required
 def dashboard():
     return render_template('dashboard.html')
+# Simple email validation
+def is_valid_email(email):
+    return re.match(r"[^@]+@[^@]+\.[^@]+", email)
+
+@app.route('/upload-sales-team', methods=['POST'])
+@login_required
+def upload_sales_team():
+    if current_user.role != 'admin':
+        return jsonify({'success': False, 'message': 'Access denied'})
+
+    if 'file' not in request.files:
+        return jsonify({'success': False, 'message': 'No file uploaded'})
+
+    file = request.files['file']
+
+    try:
+        # Read Excel file
+        df = pd.read_excel(file)
+
+        # Check required columns
+        if 'name' not in df.columns or 'email' not in df.columns:
+            return jsonify({'success': False, 'message': 'Excel must contain "name" and "email" columns'})
+
+        added_users = []
+        skipped_rows = []
+
+        for index, row in df.iterrows():
+            # Convert NaN to None and strip strings
+            name = str(row['name']).strip() if pd.notna(row['name']) else None
+            email = str(row['email']).strip() if pd.notna(row['email']) else None
+
+            # Skip invalid or missing data
+            if not name or not email or not is_valid_email(email):
+                skipped_rows.append({
+                    'row': index + 2,  # Excel row number
+                    'name': name,
+                    'email': email,
+                    'reason': 'Missing or invalid'
+                })
+                continue
+
+            # Skip duplicates
+            if User.query.filter_by(email=email).first():
+                skipped_rows.append({
+                    'row': index + 2,
+                    'name': name,
+                    'email': email,
+                    'reason': 'Already exists'
+                })
+                continue
+
+            # Generate password: first 3 letters of name + @123
+            password = f"{name[:3]}@123"
+
+            user = User(
+                name=name,
+                email=email,
+                role='agent',
+                password=generate_password_hash(password)
+            )
+
+            db.session.add(user)
+            added_users.append(email)
+
+        db.session.commit()
+
+        return jsonify({
+            'success': True,
+            'message': f'Users added successfully: {added_users}',
+            'skipped_rows': skipped_rows
+        })
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'message': str(e)})
 
 @app.route('/full-filter', methods=['GET', 'POST'])
 @login_required
@@ -569,7 +721,8 @@ def log_visit():
                     'profession':client.profession or'',
                     'building_name': client.building_name or '',
                     'preferred_projects': client.preferred_projects or '[]',
-                    'notes': client.notes or ''
+                    'notes': client.notes or '',
+                    'ethnicity': client.ethnicity or ''
                 },
                 'previous_visits': previous_visits
             })
@@ -862,6 +1015,142 @@ def get_locations_api():
     locations_list = [{'id': loc.id, 'name': loc.name} for loc in locations]
     return jsonify(locations_list)
 # Custom filter for templates
+
+
+
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
+@app.route('/upload-data', methods=['GET', 'POST'])
+
+def upload_data():
+    if request.method == 'GET':
+        return render_template('upload_data.html')
+
+    file = request.files.get('file')
+    if not file or not allowed_file(file.filename):
+        return jsonify({'success': False, 'message': 'Please upload a valid Excel or CSV file.'})
+
+    os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+    filepath = os.path.join(UPLOAD_FOLDER, file.filename)
+    file.save(filepath)
+
+    try:
+        df = pd.read_excel(filepath) if file.filename.endswith(('xls', 'xlsx')) else pd.read_csv(filepath)
+        df.fillna('', inplace=True)
+
+        # Load reference tables
+        locations = {str(l.id): l.name for l in Location.query.all()}
+        projects = {str(p.id): p.name for p in Project.query.all()}
+        agents = {str(u.id): u.name for u in User.query.all()}
+
+        def convert_ids_to_names(value, lookup_dict, default_none=False):
+            if not value or str(value).strip() == '':
+                return ["None"] if default_none else []
+            ids = [str(v).strip() for v in str(value).split(',') if str(v).strip()]
+            names = [lookup_dict.get(i, f"Unknown-{i}") for i in ids]
+            return names
+
+        total_clients, total_visits = 0, 0
+
+        for _, row in df.iterrows():
+            name = str(row.get('name', '')).strip()
+            mobile = str(row.get('mobile', '')).strip()
+            if not name or not mobile:
+                continue
+
+            # Convert IDs to names for multi-value fields
+            preferred_locations = convert_ids_to_names(row.get('preferred_location', ''), locations)
+            preferred_projects_ids = [str(v).strip() for v in str(row.get('preferred_projects', '')).split(',') if str(v).strip()]
+            agents_involved_ids = [str(v).strip() for v in str(row.get('agents_involved', '')).split(',') if str(v).strip()]
+            telecallers_involved = convert_ids_to_names(row.get('telecallers_involved', ''), agents, default_none=True)
+            # Use the existing function, but take only the first name
+            lead_source_project_list = convert_ids_to_names(row.get('lead_source_project', ''), projects)
+            lead_source_project_name = lead_source_project_list[0] if lead_source_project_list else ""
+            current_location_list = convert_ids_to_names(row.get('current_location', ''), locations)
+            # Convert current_location ID to name
+            current_location_name = current_location_list[0] if current_location_list else ""
+            # Add current user automatically (save as ID)
+            if str(current_user.id) not in agents_involved_ids:
+                agents_involved_ids.append(str(current_user.id))
+
+            # Create or update client
+            client = Client.query.filter_by(mobile=mobile).first()
+            if not client:
+                client = Client(
+                    name=name,
+                    mobile=mobile,
+                    secondary_number=row.get('secondary_number', ''),
+                    email=row.get('email', ''),
+                    lead_source=row.get('lead_source', ''),
+                    lead_source_project=lead_source_project_name,
+                    bhk_requirement=row.get('bhk_requirement', ''),
+                    budget=row.get('budget', ''),
+                    preferred_location=json.dumps(preferred_locations),
+                    current_location=current_location_name,
+                    building_name=row.get('building_name', ''),
+                    preferred_projects=json.dumps(preferred_projects_ids),
+                    ethnicity=row.get('ethnicity', ''),
+                    profession=row.get('profession', ''),
+                    notes=row.get('notes', ''),
+                    created_by=current_user.id
+                )
+                db.session.add(client)
+                db.session.flush()
+                total_clients += 1
+            else:
+                client.name = name
+                client.secondary_number = row.get('secondary_number', '')
+                client.email = row.get('email', '')
+                client.lead_source = row.get('lead_source', '')
+                client.lead_source_project = lead_source_project_name,
+                client.bhk_requirement = row.get('bhk_requirement', '')
+                client.budget = row.get('budget', '')
+                client.preferred_location = json.dumps(preferred_locations)
+                client.current_location = current_location_name
+                client.building_name = row.get('building_name', '')
+                client.preferred_projects = json.dumps(preferred_projects_ids)
+                client.ethnicity = row.get('ethnicity', '')
+                client.profession = row.get('profession', '')
+                client.notes = row.get('notes', '')
+
+            # Create site visit
+            visit_date_str = str(row.get('visit_date', '')).strip()
+            project_id = str(row.get('project_id', '')).strip()
+            if visit_date_str and project_id:
+                try:
+                    visit_date = pd.to_datetime(visit_date_str).to_pydatetime()
+                    visit = SiteVisit(
+                        client_id=client.id,
+                        visit_date=visit_date,
+                        project_id=int(project_id),
+                        status=row.get('status', 'Upcoming'),
+                        agents_involved=json.dumps(agents_involved_ids),
+                        telecallers_involved=json.dumps(telecallers_involved),
+                        notes=row.get('notes', ''),
+                        created_by=current_user.id
+                    )
+                    db.session.add(visit)
+                    total_visits += 1
+                except Exception:
+                    continue
+
+        db.session.commit()
+
+        return jsonify({
+            'success': True,
+            'message': f'Successfully uploaded {total_clients} clients and {total_visits} site visits.'
+        })
+
+    except Exception as e:
+        db.session.rollback()
+        import traceback
+        traceback.print_exc()
+        return jsonify({'success': False, 'message': f'Error: {str(e)}'})
+
+
 @app.template_filter('from_json')
 def from_json_filter(value):
     try:
