@@ -30,6 +30,7 @@ def get_client_info():
     # Get location from IP
     try:
         response = requests.get(f"https://ipapi.co/{ip_address}/json/").json()
+        print(response)
         city = response.get("city")
         region = response.get("region")
         country = response.get("country_name")
@@ -1215,3 +1216,4 @@ if __name__ == '__main__':
         print("Agent: mike@realestate.com / agent123")
     
     app.run(debug=True)
+
