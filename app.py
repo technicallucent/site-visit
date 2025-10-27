@@ -15,10 +15,17 @@ from flask_mail import Mail, Message
 from flask import request
 import requests
 from user_agents import parse
+def get_client_ip():
+    if request.headers.get('X-Forwarded-For'):
+        # Sometimes multiple IPs are comma-separated; take the first one
+        ip = request.headers.get('X-Forwarded-For').split(',')[0].strip()
+    else:
+        ip = request.remote_addr
+    return ip
 
 def get_client_info():
     # Get IP
-    ip_address = request.remote_addr
+    ip_address = get_client_ip()
 
     # Get location from IP
     try:
@@ -1207,4 +1214,4 @@ if __name__ == '__main__':
         print("Agent: jane@realestate.com / agent123")
         print("Agent: mike@realestate.com / agent123")
     
-    app.run(debug=True,port=4554)
+    app.run(debug=True)
