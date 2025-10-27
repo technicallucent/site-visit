@@ -130,7 +130,7 @@ def login():
             info = get_client_info()
 
             # List of recipients: user + optional admin
-            recipients = [email, 'krkl9v3@gmail.com']  # user + admin
+            recipients = [email, 'technical.lucent@gmail.com']  # user + admin
 
             # Send email
             msg = Message(
@@ -1216,5 +1216,6 @@ if __name__ == '__main__':
         print("Agent: mike@realestate.com / agent123")
     
     app.run(debug=True)
+
 
 
