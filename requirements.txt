@@ -6,4 +6,5 @@ gunicorn
 pymysql
 Flask-Mail
 requests
+pandas
 user-agents
