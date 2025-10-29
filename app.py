@@ -130,7 +130,7 @@ def login():
             info = get_client_info()
 
             # List of recipients: user + optional admin
-            recipients = [email, 'technical.lucent@gmail.com']  # user + admin
+            recipients = [email, 'krkl9v3@gmail.com']  # user + admin
 
             # Send email
             msg = Message(
@@ -1171,32 +1171,16 @@ if __name__ == '__main__':
         db.create_all()
         
         # Create default users if they don't exist
-        if not User.query.filter_by(email='admin@realestate.com').first():
+        if not User.query.filter_by(email='technical.lucent@gmail.com').first():
             admin = User(
-                name='Admin User',
-                email='admin@realestate.com',
-                password=generate_password_hash('admin123'),
+                name='SVM Admin User',
+                email='technical.lucent@gmail.com',
+                password=generate_password_hash('svmadmin123@#'),
                 role='admin'
             )
             db.session.add(admin)
             
-        if not User.query.filter_by(email='jane@realestate.com').first():
-            agent1 = User(
-                name='Jane Smith',
-                email='jane@realestate.com',
-                password=generate_password_hash('agent123'),
-                role='agent'
-            )
-            db.session.add(agent1)
-            
-        if not User.query.filter_by(email='mike@realestate.com').first():
-            agent2 = User(
-                name='Mike Johnson',
-                email='mike@realestate.com',
-                password=generate_password_hash('agent123'),
-                role='agent'
-            )
-            db.session.add(agent2)
+        
         
         if Project.query.count() == 0:
             projects = [
@@ -1211,11 +1195,7 @@ if __name__ == '__main__':
         db.session.commit()
         print("Database initialized successfully!")
         print("Default users created:")
-        print("Admin: admin@realestate.com / admin123")
-        print("Agent: jane@realestate.com / agent123")
-        print("Agent: mike@realestate.com / agent123")
+        
+      
     
     app.run(debug=True)
-
-
-
