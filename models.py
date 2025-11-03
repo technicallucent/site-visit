@@ -35,6 +35,7 @@ class Client(db.Model):
     ethnicity = db.Column(db.String(100))
     profession = db.Column(db.String(200))  
     notes = db.Column(db.Text)
+    preferred_possession = db.Column(db.String(100))
     created_by = db.Column(db.Integer, db.ForeignKey('user.id'))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 # Add to your models.py

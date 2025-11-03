@@ -646,7 +646,7 @@ def update_visit_status(visit_id):
 
     # Validate new status
     new_status = request.form.get('status')
-    if new_status not in ['Scheduled', 'Completed', 'Cancelled']:
+    if new_status not in ['Upcoming', 'Completed', 'Cancelled']:
         flash('Invalid status.', 'danger')
         return redirect(url_for('visit_details', visit_id=visit_id))
 
@@ -690,7 +690,9 @@ def log_visit():
                     'date': visit.visit_date.strftime('%b %d, %Y'),
                     'project': visit.project.name,
                     'status': visit.status,
-                    'agents': ', '.join(agents_list)
+                    'agents': ', '.join(agents_list),
+                    'project_id': visit.project.id if visit.project else None, 
+                    
                 })
 
             # Parse locations stored as JSON arrays of names
@@ -730,7 +732,8 @@ def log_visit():
                     'building_name': client.building_name or '',
                     'preferred_projects': client.preferred_projects or '[]',
                     'notes': client.notes or '',
-                    'ethnicity': client.ethnicity or ''
+                    'ethnicity': client.ethnicity or '',
+                    'preferred_possession':client.preferred_possession or '',
                 },
                 'previous_visits': previous_visits
             })
@@ -743,6 +746,50 @@ def log_visit():
     locations = Location.query.filter_by(is_active=True).all()  # for dropdown if needed
     return render_template('log_visit.html', projects=projects, users=users, locations=locations)
 
+@app.route('/new-visit/<mobile>', methods=['GET', 'POST'])
+@login_required
+def new_visit(mobile):
+    # Fetch client by mobile
+    client = Client.query.filter_by(mobile=mobile).first()
+    if not client:
+        return "Client not found", 404
+
+    if request.method == 'POST':
+        # Get form data
+        visit_date = request.form.get('visit_date')
+        project_id = request.form.get('project_id')
+        status = request.form.get('status')
+        notes = request.form.get('notes')
+        agents_involved = request.form.getlist('agents_involved')  # from multi-select
+
+        # Ensure agents_involved is a list
+        if isinstance(agents_involved, str):
+            agents_involved = [agents_involved] if agents_involved else []
+
+        # Include current user automatically
+        if str(current_user.id) not in agents_involved:
+            agents_involved.append(str(current_user.id))
+
+        # Create new site visit
+        new_visit = SiteVisit(
+            client_id=client.id,
+            visit_date=visit_date,
+            project_id=project_id,
+            status=status,
+            notes=notes,
+            agents_involved=json.dumps(agents_involved),  # store as JSON
+            created_by=current_user.id
+        )
+        db.session.add(new_visit)
+        db.session.commit()
+
+        # Redirect to visit details page of newly created visit
+        return redirect(url_for('visit_details', visit_id=new_visit.id))
+
+    # GET request: render form pre-filled with client info
+    projects = Project.query.order_by(Project.name).all()
+    users = User.query.filter_by(role='agent').all()
+    return render_template('new_visit.html', client=client, projects=projects, users=users)
 
 @app.route('/save-visits', methods=['POST'])
 @login_required
@@ -787,6 +834,7 @@ def save_visits():
                 preferred_projects=json.dumps(data.get('preferred_projects', [])),
                 notes=data.get('notes', ''),
                 ethnicity=data.get('ethnicity', ''),
+                preferred_possession=data.get('preferred_possession', ''),
                 profession=data.get('profession', ''),
                 created_by=current_user.id
             )
@@ -808,7 +856,8 @@ def save_visits():
             client.building_name = data.get('building_name', '')
             client.notes = data.get('notes', '')
             client.ethnicity = data.get('ethnicity', '')
-            client.profession = data.get('profession', '') 
+            client.profession = data.get('profession', '')
+            client.preferred_possession = data.get('preferred_possession', '') 
             print(f"Updated existing client with ID: {client.id}")
         
         # Process and save all visits
