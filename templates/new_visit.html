@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container my-4">
+    <h4>Add New Site Visit for {{ client.name }}</h4>
+    <form method="POST">
+        <div class="row g-3">
+
+            <!-- Visit Date -->
+            <div class="col-md-6">
+                <label class="form-label">Visit Date *</label>
+                <input type="date" name="visit_date" class="form-control" required>
+            </div>
+
+            <!-- Project -->
+            <div class="col-md-6">
+                <label class="form-label">Project *</label>
+                <select name="project_id" class="form-select select2-project" required>
+                    <option value="">Select Project</option>
+                    {% for project in projects %}
+                    <option value="{{ project.id }}">{{ project.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Include this JS at the bottom of your template -->
+            <script>
+                $(document).ready(function () {
+                    $('.select2-project').select2({
+                        placeholder: "Select a project",
+                        allowClear: true,   // allows clearing selection
+                        width: '100%'
+                        // DO NOT add `multiple: true` — single select only
+                    });
+                });
+            </script>
+
+            <!-- Status -->
+            <div class="col-md-6">
+                <label class="form-label">Status *</label>
+                <select name="status" class="form-select" required>
+                    <option value="Upcoming" selected>Upcoming</option>
+                    <option value="Completed">Completed</option>
+                    <option value="Cancelled">Cancelled</option>
+                </select>
+            </div>
+
+            <!-- Agents Involved -->
+            <div class="col-md-6">
+                <label class="form-label">Agents Involved</label>
+                <select class="form-select select2-visit" name="visits[0][agents_involved]" multiple>
+                    {% for user in users %}
+                    <option value="{{ user.id }}" {% if user.id==current_user.id %}selected{% endif %}>
+                        {{ user.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+                <div class="form-text">Current user is automatically included</div>
+            </div>
+
+            <!-- Notes -->
+            <div class="col-12">
+                <label class="form-label">Notes</label>
+                <textarea name="notes" class="form-control" rows="3"></textarea>
+            </div>
+
+        </div>
+
+        <!-- Hidden client info -->
+        <input type="hidden" name="client_name" value="{{ client.name }}">
+        <input type="hidden" name="client_mobile" value="{{ client.mobile }}">
+
+        <div class="mt-3 text-end">
+            <button type="submit" class="btn btn-success">Create Visit</button>
+        </div>
+    </form>
+</div>
+
+<!-- Initialize Select2 -->
+<script>
+    $(document).ready(function () {
+        $('.select2-visit').select2({
+            placeholder: "Select agents",
+            allowClear: true
+        });
+    });
+</script>
+{% endblock %}

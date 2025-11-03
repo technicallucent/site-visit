@@ -1,20 +1,349 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container my-4">
-    <div class="row">
-        <div class="col-lg-8">
-            <!-- Visit Information Card -->
-            <div class="card shadow-sm mb-4">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="card-title mb-0">
-                        <i class="fas fa-calendar-check me-2"></i>Site Visit Information
-                    </h5>
+<style>
+    .gradient-card {
+        background: linear-gradient(135deg, #0d6efd 0%, #6493db 100%);
+        border: none;
+        border-radius: 20px;
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.15);
+    }
+
+    .gradient-info {
+        background: linear-gradient(135deg, #0d6efd 0%, #6493db 100%);
+        border: none;
+        border-radius: 20px;
+        box-shadow: 0 8px 25px rgba(79, 172, 254, 0.15);
+    }
+
+    .gradient-success {
+        background: linear-gradient(135deg, #0d6efd 0%, #6493db 100%);
+        border: none;
+        border-radius: 20px;
+        box-shadow: 0 8px 25px rgba(67, 233, 123, 0.15);
+    }
+
+    .gradient-warning {
+        background: linear-gradient(135deg, #0d6efd 0%, #6493db 100%);
+        border: none;
+        border-radius: 20px;
+        box-shadow: 0 8px 25px rgba(250, 112, 154, 0.15);
+    }
+
+    .modern-card {
+        border: none;
+        border-radius: 20px;
+        box-shadow: 0 12px 35px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        height: 100%;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(10px);
+    }
+
+    .modern-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 20px 45px rgba(0, 0, 0, 0.12);
+    }
+
+    .card-header-modern {
+        padding: 1.75rem;
+        border: none;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        border-radius: 20px 20px 0 0 !important;
+    }
+
+    .info-label {
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: #64748b;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+    }
+
+    .info-value {
+        font-size: 1.1rem;
+        color: #1e293b;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+        line-height: 1.4;
+    }
+
+    .badge-modern {
+        padding: 0.6rem 1.2rem;
+        border-radius: 25px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        display: inline-block;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn-modern {
+        border-radius: 15px;
+        padding: 0.85rem 1.75rem;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        transition: all 0.3s ease;
+        border: 2px solid;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn-modern:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    .info-box {
+        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        border-radius: 16px;
+        padding: 1.5rem;
+        border-left: 5px solid #667eea;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        font-style: italic;
+        line-height: 1.6;
+    }
+
+    .table-modern {
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+    }
+
+    .table-modern thead {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+
+    .table-modern th {
+        border: none;
+        padding: 1.25rem 1rem;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+    }
+
+    .table-modern td {
+        border: none;
+        padding: 1.25rem 1rem;
+        background: white;
+        border-bottom: 1px solid #f1f5f9;
+    }
+
+    .table-modern tbody tr {
+        transition: all 0.3s ease;
+    }
+
+    .table-modern tbody tr:hover {
+        background-color: #f8fafc;
+        transform: translateX(5px);
+    }
+
+    .icon-circle {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.35rem;
+        flex-shrink: 0;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    .page-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 25px;
+        padding: 2.5rem;
+        color: white;
+        margin-bottom: 2.5rem;
+        box-shadow: 0 15px 35px rgba(102, 126, 234, 0.3);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .page-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    }
+
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.75rem;
+    }
+
+    .info-item {
+        background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+        padding: 1.5rem;
+        border-radius: 16px;
+        border: 2px solid #f1f5f9;
+        transition: all 0.3s ease;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05);
+    }
+
+    .info-item:hover {
+        border-color: #667eea;
+        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.2);
+        transform: translateY(-5px);
+    }
+
+    .mobile-stack {
+        display: flex;
+        flex-direction: column;
+        gap: 1.75rem;
+    }
+
+    .form-control,
+    .form-select {
+        border-radius: 12px;
+        border: 2px solid #e2e8f0;
+        padding: 0.75rem 1rem;
+        transition: all 0.3s ease;
+        font-weight: 500;
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        transform: translateY(-2px);
+    }
+
+    .status-badge {
+        padding: 0.7rem 1.5rem;
+        border-radius: 25px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .bg-success {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+    }
+
+    .bg-warning {
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
+    }
+
+    .bg-danger {
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
+    }
+
+    @media (max-width: 768px) {
+        .page-header {
+            padding: 2rem 1.5rem;
+            text-align: center;
+            border-radius: 20px;
+        }
+
+        .icon-circle {
+            width: 45px;
+            height: 45px;
+            font-size: 1.2rem;
+        }
+
+        .card-header-modern {
+            padding: 1.5rem;
+        }
+
+        .info-grid {
+            grid-template-columns: 1fr;
+            gap: 1.25rem;
+        }
+
+        .table-modern {
+            font-size: 0.9rem;
+        }
+
+        .badge-modern {
+            font-size: 0.8rem;
+            padding: 0.5rem 1rem;
+        }
+
+        .btn-modern {
+            width: 100%;
+            margin-top: 0.5rem;
+            border-radius: 12px;
+        }
+
+        .info-item {
+            padding: 1.25rem;
+            border-radius: 14px;
+        }
+    }
+
+    @media (min-width: 769px) and (max-width: 1024px) {
+        .info-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (min-width: 1400px) {
+        .container {
+            max-width: 1320px;
+        }
+
+        .info-grid {
+            grid-template-columns: repeat(3, 1fr);
+        }
+    }
+</style>
+
+<div class="container my-5">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="d-flex flex-column flex-md-row align-items-center justify-content-between position-relative">
+            <div class="d-flex align-items-center mb-3 mb-md-0">
+                <div class="icon-circle bg-white bg-opacity-20 me-4">
+                    <i class="fas fa-map-marker-alt text-white"></i>
                 </div>
-                <div class="card-body">
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <strong>Visit Date:</strong>
+                <div>
+                    <h2 class="mb-2 fw-bold">{{ visit.client.name }} Site Visit Details</h2>
+                    <p class="mb-0 opacity-90 fs-5">
+                        {{ visit.project.name }} • {{ visit.visit_date.strftime('%B %d, %Y') }}
+                    </p>
+                </div>
+            </div>
+            {% if visit.client and visit.client.mobile %}
+            <a href="{{ url_for('new_visit', mobile=visit.client.mobile) }}" class="btn btn-light btn-modern fw-bold">
+                <i class="fas fa-plus-circle me-2"></i>
+                Add Another Visit for {{ visit.client.name }}
+            </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Main Content Grid -->
+    <div class="row g-4">
+        <!-- Visit Information Section -->
+        <div class="col-12">
+            <div class="modern-card">
+                <div class="gradient-card card-header-modern text-white">
+                    <div class="d-flex align-items-center">
+                        <div class="icon-circle bg-white bg-opacity-20 me-3">
+                            <i class="fas fa-calendar-check text-white"></i>
+                        </div>
+                        <div>
+                            <h4 class="mb-1">Visit Information</h4>
+                            <small class="opacity-90 d-none d-md-block">Key details about this visit</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body p-4 p-md-4">
+                    <div class="info-grid">
+                        <!-- Visit Date -->
+                        <div class="info-item">
+                            <div class="info-label">
+                                <i class="fas fa-calendar me-2"></i> Visit Date
+                            </div>
                             {% set can_edit = false %}
                             {% if current_user.role == 'admin' %}
                             {% set can_edit = true %}
@@ -26,22 +355,37 @@
                             {% endif %}
                             {% if can_edit %}
                             <form method="POST" action="{{ url_for('update_visit_details', visit_id=visit.id) }}">
-                                <input type="date" name="visit_date" class="form-control form-control-sm mb-2"
+                                <input type="date" name="visit_date" class="form-control mb-3"
                                     value="{{ visit.visit_date.strftime('%Y-%m-%d') }}" required>
-                                <button type="submit" class="btn btn-sm btn-dark">Update Visit Date</button>
+                                <button type="submit" class="btn btn-dark w-100 fw-bold py-2">
+                                    <i class="fas fa-check me-2"></i> Update Date
+                                </button>
                             </form>
                             {% else %}
-                            <p>{{ visit.visit_date.strftime('%B %d, %Y') }}</p>
+                            <div class="info-value fs-4 fw-bold text-primary">
+                                {{ visit.visit_date.strftime('%B %d, %Y') }}
+                            </div>
                             {% endif %}
                         </div>
 
-                        <div class="col-md-6">
-                            <strong>Project:</strong>
-                            <p>{{ visit.project.name }}</p>
+                        <!-- Project -->
+                        <div class="info-item">
+                            <div class="info-label">
+                                <i class="fas fa-building me-2"></i> Project
+                            </div>
+                            <div class="info-value">
+                                <span class="badge badge-modern text-white"
+                                    style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                                    <i class="fas fa-building me-2"></i>{{ visit.project.name }}
+                                </span>
+                            </div>
                         </div>
 
-                        <div class="col-md-6">
-                            <strong>Status:</strong>
+                        <!-- Status -->
+                        <div class="info-item">
+                            <div class="info-label">
+                                <i class="fas fa-info-circle me-2"></i> Status
+                            </div>
                             {% set can_edit = false %}
                             {% if current_user.role == 'admin' %}
                             {% set can_edit = true %}
@@ -54,57 +398,77 @@
 
                             {% if can_edit %}
                             <form method="POST" action="{{ url_for('update_visit_status', visit_id=visit.id) }}">
-                                <select name="status" class="form-select form-select-sm mb-2"
-                                    style="width:max-content; border:green solid 1px;" required>
+                                <select name="status" class="form-select mb-3" required>
                                     {% for status_option in ['Upcoming', 'Completed', 'Cancelled'] %}
                                     <option value="{{ status_option }}" {% if visit.status==status_option %}selected{%
-                                        endif %}>{{ status_option }}</option>
+                                        endif %}>
+                                        {{ status_option }}
+                                    </option>
                                     {% endfor %}
                                 </select>
-                                <button type="submit" class="btn btn-sm btn-dark">Update Status</button>
+                                <button type="submit" class="btn btn-success w-100 fw-bold py-2">
+                                    <i class="fas fa-sync-alt me-2"></i> Update Status
+                                </button>
                             </form>
                             {% else %}
-                            <p><span
-                                    class="badge bg-{{ 'success' if visit.status == 'Completed' else 'warning' if visit.status == 'Scheduled' else 'danger' }}">{{
-                                    visit.status }}</span></p>
+                            <div class="info-value">
+                                <span
+                                    class="status-badge text-white bg-{{ 'success' if visit.status == 'Completed' else 'warning' if visit.status == 'Scheduled' else 'danger' }}">
+                                    {{ visit.status }}
+                                </span>
+                            </div>
                             {% endif %}
                         </div>
 
-                        <div class="col-md-6">
-                            <strong>Created By:</strong>
-                            <p>
+                        <!-- Created By -->
+                        <div class="info-item">
+                            <div class="info-label">
+                                <i class="fas fa-user-tie me-2"></i> Created By
+                            </div>
+                            <div class="info-value">
                                 {% for user in agents %}
                                 {% if user.id == visit.created_by %}
-                                {{ user.name }}
+                                <span class="badge badge-modern text-white"
+                                    style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                                    <i class="fas fa-user-circle me-2"></i>{{ user.name }}
+                                </span>
                                 {% endif %}
                                 {% endfor %}
-                            </p>
+                            </div>
                         </div>
-                    </div>
 
-                    {% if visit.agents_involved %}
-                    <div class="row mt-3">
-                        <div class="col-12">
-                            <strong>Agents Involved:</strong>
-                            <p>
+                        <!-- Agents Involved -->
+                        {% if visit.agents_involved %}
+                        <div class="info-item">
+                            <div class="info-label">
+                                <i class="fas fa-users me-2"></i> Team Members
+                            </div>
+                            <div class="info-value">
                                 {% set agents_involved = visit.agents_involved|from_json %}
                                 {% for agent_id in agents_involved %}
                                 {% for user in agents %}
                                 {% if user.id == agent_id|int %}
-                                <span class="badge bg-info me-1">{{ user.name }}</span>
+                                <span class="badge badge-modern me-2 mb-2 text-white"
+                                    style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                                    <i class="fas fa-user me-2"></i>{{ user.name }}
+                                </span>
                                 {% endif %}
                                 {% endfor %}
                                 {% endfor %}
-                            </p>
+                            </div>
                         </div>
+                        {% endif %}
                     </div>
-                    {% endif %}
 
                     {% if visit.notes %}
-                    <div class="row mt-3">
-                        <div class="col-12">
-                            <strong>Visit Notes:</strong>
-                            <p class="border p-3 rounded bg-light">{{ visit.notes }}</p>
+                    <div class="mt-5 pt-3">
+                        <div class="info-label mb-3 fs-6">
+                            <i class="fas fa-sticky-note me-2"></i> Visit Notes
+                        </div>
+                        <div class="info-box">
+                            <i class="fas fa-quote-left text-primary me-2"></i>
+                            <span class="fw-medium">{{ visit.notes }}</span>
+                            <i class="fas fa-quote-right text-primary ms-2"></i>
                         </div>
                     </div>
                     {% endif %}
@@ -112,163 +476,251 @@
             </div>
         </div>
 
-        <div class="col-lg-4">
+        <!-- Client and Requirements Row -->
+        <div class="col-12 col-lg-6">
             <!-- Client Information Card -->
-            <div class="card shadow-sm mb-4">
-                <div class="card-header bg-info text-white">
-                    <h5 class="card-title mb-0">
-                        <i class="fas fa-user me-2"></i>Client Information
-                    </h5>
+            <div class="modern-card mb-4 mb-lg-0 h-100">
+                <div class="gradient-info card-header-modern text-white">
+                    <div class="d-flex align-items-center">
+                        <div class="icon-circle bg-white bg-opacity-20 me-3">
+                            <i class="fas fa-user text-white"></i>
+                        </div>
+                        <div>
+                            <h4 class="mb-1">Client Information</h4>
+                            <small class="opacity-90 d-none d-md-block">Contact & personal details</small>
+                        </div>
+                    </div>
                 </div>
-                <div class="card-body">
-                    <h6 class="border-bottom pb-2">{{ visit.client.name }}</h6>
+                <div class="card-body p-4">
+                    <h4 class="fw-bold mb-4 text-dark">
+                        <i class="fas fa-user-circle me-3" style="color: #f093fb;"></i>
+                        {{ visit.client.name }}
+                    </h4>
 
-                    <div class="mb-2">
-                        <small class="text-muted">Mobile:</small>
-                        <p class="mb-1">{{ visit.client.mobile }}</p>
-                    </div>
+                    <div class="mobile-stack">
+                        <div>
+                            <div class="info-label">
+                                <i class="fas fa-phone me-2"></i> Mobile
+                            </div>
+                            <div class="info-value fs-5 text-dark">{{ visit.client.mobile }}</div>
+                        </div>
 
-                    {% if visit.client.secondary_number %}
-                    <div class="mb-2">
-                        <small class="text-muted">Secondary Number:</small>
-                        <p class="mb-1">{{ visit.client.secondary_number }}</p>
-                    </div>
-                    {% endif %}
+                        {% if visit.client.secondary_number %}
+                        <div>
+                            <div class="info-label">
+                                <i class="fas fa-phone-alt me-2"></i> Secondary Number
+                            </div>
+                            <div class="info-value text-dark">{{ visit.client.secondary_number }}</div>
+                        </div>
+                        {% endif %}
 
-                    {% if visit.client.email %}
-                    <div class="mb-2">
-                        <small class="text-muted">Email:</small>
-                        <p class="mb-1">{{ visit.client.email }}</p>
-                    </div>
-                    {% endif %}
+                        {% if visit.client.email %}
+                        <div>
+                            <div class="info-label">
+                                <i class="fas fa-envelope me-2"></i> Email
+                            </div>
+                            <div class="info-value text-dark" style="word-break: break-word;">{{ visit.client.email }}
+                            </div>
+                        </div>
+                        {% endif %}
 
-                    {% if visit.client.lead_source %}
-                    <div class="mb-2">
-                        <small class="text-muted">Lead Source:</small>
-                        <p class="mb-1">{{ visit.client.lead_source }}</p>
-                    </div>
-                    {% endif %}
+                        {% if visit.client.lead_source %}
+                        <div>
+                            <div class="info-label">
+                                <i class="fas fa-bullhorn me-2"></i> Lead Source
+                            </div>
+                            <div class="info-value">
+                                <span class="badge badge-modern"
+                                    style="background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); color: #78350f;">
+                                    {{ visit.client.lead_source }}
+                                </span>
+                            </div>
+                        </div>
+                        {% endif %}
 
-                    {% if visit.client.current_location %}
-                    <div class="mb-2">
-                        <small class="text-muted">Current Location:</small>
-                        <p class="mb-1">{{ visit.client.current_location }}</p>
-                    </div>
-                    {% endif %}
+                        {% if visit.client.current_location %}
+                        <div>
+                            <div class="info-label">
+                                <i class="fas fa-map-marker-alt me-2"></i> Current Location
+                            </div>
+                            <div class="info-value text-dark">{{ visit.client.current_location }}</div>
+                        </div>
+                        {% endif %}
 
-                    {% if visit.client.profession %}
-                    <div class="mb-2">
-                        <small class="text-muted">Profession:</small>
-                        <p class="mb-1">{{ visit.client.profession }}</p>
+                        {% if visit.client.building_name %}
+                        <div>
+                            <div class="info-label">
+                                <i class="fas fa-building me-2"></i> Current Building
+                            </div>
+                            <div class="info-value text-dark">{{ visit.client.building_name }}</div>
+                        </div>
+                        {% endif %}
+
+                        {% if visit.client.profession %}
+                        <div>
+                            <div class="info-label">
+                                <i class="fas fa-briefcase me-2"></i> Profession
+                            </div>
+                            <div class="info-value text-dark">{{ visit.client.profession }}</div>
+                        </div>
+                        {% endif %}
+                        {% if visit.client.preferred_possession %}
+                        <div>
+                            <div class="info-label">
+                                <i class="fas fa-briefcase me-2"></i> Preferred Possession
+                            </div>
+                            <div class="info-value text-dark">{{ visit.client.preferred_possession }}</div>
+                        </div>
+                        {% endif %}
                     </div>
-                    {% endif %}
                 </div>
             </div>
+        </div>
 
+        <div class="col-12 col-lg-6">
             <!-- Property Requirements Card -->
-            <div class="card shadow-sm">
-                <div class="card-header bg-success text-white">
-                    <h5 class="card-title mb-0">
-                        <i class="fas fa-home me-2"></i>Property Requirements
-                    </h5>
+            <div class="modern-card h-100">
+                <div class="gradient-success card-header-modern text-white">
+                    <div class="d-flex align-items-center">
+                        <div class="icon-circle bg-white bg-opacity-20 me-3">
+                            <i class="fas fa-home text-white"></i>
+                        </div>
+                        <div>
+                            <h4 class="mb-1">Property Requirements</h4>
+                            <small class="opacity-90 d-none d-md-block">Client preferences & specifications</small>
+                        </div>
+                    </div>
                 </div>
-                <div class="card-body">
-                    {% if visit.client.bhk_requirement %}
-                    <div class="mb-2">
-                        <small class="text-muted">BHK Requirement:</small>
-                        <p class="mb-1"><span class="badge bg-primary">{{ visit.client.bhk_requirement }}</span></p>
-                    </div>
-                    {% endif %}
+                <div class="card-body p-4">
+                    <div class="mobile-stack">
+                        {% if visit.client.bhk_requirement %}
+                        <div>
+                            <div class="info-label">
+                                <i class="fas fa-door-open me-2"></i> BHK Requirement
+                            </div>
+                            <div class="info-value">
+                                <span class="badge badge-modern text-white"
+                                    style="background: linear-gradient(135deg, #8b5cf6 0%, #d946ef 100%);">
+                                    {{ visit.client.bhk_requirement }}
+                                </span>
+                            </div>
+                        </div>
+                        {% endif %}
 
-                    {% if visit.client.budget %}
-                    <div class="mb-2">
-                        <small class="text-muted">Budget:</small>
-                        <p class="mb-1">{{ visit.client.budget }}</p>
-                    </div>
-                    {% endif %}
+                        {% if visit.client.budget %}
+                        <div>
+                            <div class="info-label">
+                                <i class="fas fa-rupee-sign me-2"></i> Budget
+                            </div>
+                            <div class="info-value fs-5 text-success fw-bold">{{ visit.client.budget }}</div>
+                        </div>
+                        {% endif %}
 
-                    {% if preferred_location_names %}
-                    <div class="mb-2">
-                        <small class="text-muted">Preferred Location:</small>
-                        <p class="mb-1">{{ preferred_location_names | join(', ') }}</p>
-                    </div>
-                    {% endif %}
+                        {% if preferred_location_names %}
+                        <div>
+                            <div class="info-label">
+                                <i class="fas fa-location-arrow me-2"></i> Preferred Location
+                            </div>
+                            <div class="info-value text-dark fw-medium">{{ preferred_location_names | join(', ') }}
+                            </div>
+                        </div>
+                        {% endif %}
 
-                    {% if visit.client.preferred_projects %}
-                    <div class="mb-2">
-                        <small class="text-muted">Preferred Projects:</small>
-                        <p class="mb-1">
-                            {% set preferred_projects = visit.client.preferred_projects|from_json %}
-                            {% for project_id in preferred_projects %}
-                            {% for project in projects %}
-                            {% if project.id == project_id|int %}
-                            <span class="badge bg-secondary me-1">{{ project.name }}</span>
-                            {% endif %}
-                            {% endfor %}
-                            {% endfor %}
-                        </p>
-                    </div>
-                    {% endif %}
+                        {% if visit.client.preferred_projects %}
+                        <div>
+                            <div class="info-label">
+                                <i class="fas fa-star me-2"></i> Preferred Projects
+                            </div>
+                            <div class="info-value">
+                                {% set preferred_projects = visit.client.preferred_projects|from_json %}
+                                {% for project_id in preferred_projects %}
+                                {% for project in projects %}
+                                {% if project.id == project_id|int %}
+                                <span class="badge badge-modern me-2 mb-2 text-white"
+                                    style="background: linear-gradient(135deg, #06b6d4 0%, #0ea5e9 100%);">
+                                    {{ project.name }}
+                                </span>
+                                {% endif %}
+                                {% endfor %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
 
-                    {% if visit.client.notes %}
-                    <div class="mb-2">
-                        <small class="text-muted">Client Notes:</small>
-                        <p class="mb-1 border p-2 rounded bg-light">{{ visit.client.notes }}</p>
+                        {% if visit.client.notes %}
+                        <div>
+                            <div class="info-label">
+                                <i class="fas fa-comment-alt me-2"></i> Client Notes
+                            </div>
+                            <div class="info-box fst-italic">{{ visit.client.notes }}</div>
+                        </div>
+                        {% endif %}
                     </div>
-                    {% endif %}
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Add Another Visit Button -->
-    <div class="row mb-3">
-        <div class="col-12 text-end">
-            <a href="{{ url_for('log_visit') }}?mobile={{ visit.client.mobile }}" class="btn btn-success bg-white"
-                style="border: 2px solid green !important;">
-                <i class="fas fa-plus me-1"></i> Add Another Visit for {{ visit.client.name }}
-            </a>
-        </div>
-    </div>
-
-    <!-- Previous Visits Card -->
+    <!-- Previous Visits Section -->
     {% if previous_visits %}
-    <div class="row">
+    <div class="row mt-5">
         <div class="col-12">
-            <div class="card shadow-sm">
-                <div class="card-header bg-warning">
-                    <h5 class="card-title mb-0">
-                        <i class="fas fa-history me-2"></i>Previous Site Visits
-                    </h5>
+            <div class="modern-card">
+                <div class="gradient-warning card-header-modern text-white">
+                    <div class="d-flex align-items-center">
+                        <div class="icon-circle bg-white bg-opacity-20 me-3">
+                            <i class="fas fa-history text-white"></i>
+                        </div>
+                        <div>
+                            <h4 class="mb-1">Visit History</h4>
+                            <small class="opacity-90 d-none d-md-block">Previous site visits for this client</small>
+                        </div>
+                    </div>
                 </div>
-                <div class="card-body">
+                <div class="card-body p-4">
                     <div class="table-responsive">
-                        <table class="table table-sm table-hover">
+                        <table class="table table-modern table-hover mb-0 align-middle">
                             <thead>
                                 <tr>
-                                    <th>Date</th>
-                                    <th>Project</th>
-                                    <th>Status</th>
-                                    <th>Agents</th>
+                                    <th class="border-0 ps-4">
+                                        <i class="fas fa-calendar me-2"></i>Date
+                                    </th>
+                                    <th class="border-0">
+                                        <i class="fas fa-building me-2"></i>Project
+                                    </th>
+                                    <th class="border-0">
+                                        <i class="fas fa-flag me-2"></i>Status
+                                    </th>
+                                    <th class="border-0 d-none d-md-table-cell">
+                                        <i class="fas fa-users me-2"></i>Agents
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {% for prev_visit in previous_visits %}
                                 <tr>
-                                    <td>{{ prev_visit.visit_date.strftime('%b %d, %Y') }}</td>
-                                    <td>{{ prev_visit.project.name }}</td>
+                                    <td class="ps-4">
+                                        <strong class="d-block fs-6">{{ prev_visit.visit_date.strftime('%b %d, %Y')
+                                            }}</strong>
+                                        <small class="text-muted d-none d-md-block">{{
+                                            prev_visit.visit_date.strftime('%A') }}</small>
+                                    </td>
+                                    <td class="fw-medium">{{ prev_visit.project.name }}</td>
                                     <td>
                                         <span
-                                            class="badge bg-{{ 'success' if prev_visit.status == 'Completed' else 'warning' if prev_visit.status == 'Scheduled' else 'danger' }}">
+                                            class="status-badge text-white bg-{{ 'success' if prev_visit.status == 'Completed' else 'warning' if prev_visit.status == 'Scheduled' else 'danger' }}">
                                             {{ prev_visit.status }}
                                         </span>
                                     </td>
-                                    <td>
+                                    <td class="d-none d-md-table-cell">
                                         {% set prev_agents = prev_visit.agents_involved|from_json %}
                                         {% for agent_id in prev_agents %}
                                         {% for user in agents %}
                                         {% if user.id == agent_id|int %}
-                                        {{ user.name }}{% if not loop.last %}, {% endif %}
+                                        <span class="badge badge-modern me-1 mb-1 text-white"
+                                            style="background: linear-gradient(135deg, #94a3b8 0%, #64748b 100%);">
+                                            {{ user.name }}
+                                        </span>
                                         {% endif %}
                                         {% endfor %}
                                         {% endfor %}
