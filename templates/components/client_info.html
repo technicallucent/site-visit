@@ -25,16 +25,18 @@
         <label class="form-label">Current Location</label>
         <select class="form-select select2-location" name="current_location" id="currentLocation">
           <option value="">Select current location</option>
-          <!-- Options will be loaded dynamically -->
+          {% for location in locations %}
+          <option value="{{ location.name }}">{{ location.name }}</option>
+          {% endfor %}
         </select>
       </div>
       <div class="col-md-6">
-        <label class="form-label">Building Name</label>
+        <label class="form-label"> Current Residence Building Name</label>
         <input type="text" class="form-control" name="building_name" placeholder="Enter building name" />
       </div>
       <div class="col-md-6">
         <label class="form-label">Lead Source</label>
-        <select class="form-select" name="lead_source">
+        <select class="form-select select2-leadsource" name="lead_source">
           <option value="">Select lead source</option>
           <option value="99 Acres">99 Acres</option>
           <option value="Magicbricks">Magicbricks</option>
@@ -53,7 +55,7 @@
 
       <div class="col-md-6">
         <label class="form-label">Lead Source Project</label>
-        <select class="form-select" name="lead_source_project">
+        <select class="form-select select2-project" name="lead_source_project">
           <option value="">Select a project</option>
           {% for project in projects %}
           <option value="{{ project.name }}">{{ project.name }}</option>
@@ -61,11 +63,9 @@
         </select>
       </div>
 
-
-      <!-- 🆕 New Ethnicity Field -->
       <div class="col-md-6">
         <label class="form-label">Ethnicity</label>
-        <select class="form-select" name="ethnicity">
+        <select class="form-select select2-ethnicity" name="ethnicity">
           <option value="">Select ethnicity</option>
           <option value="Gujrati">Gujrati</option>
           <option value="Marwadi">Marwadi</option>
@@ -80,28 +80,51 @@
           <option value="Parsi">Parsi</option>
         </select>
       </div>
-<div class="col-md-6">
-  <label class="form-label">Occupation</label>
-  <select class="form-select" name="profession">
-    <option value="">Select occupation</option>
-    <option value="Architect / Interior Designer">Architect / Interior Designer</option>
-    <option value="Banker / Finance">Banker / Finance</option>
-    <option value="Doctor">Doctor</option>
-    <option value="Lawyer">Lawyer</option>
-    <option value="Chartered Accountant">Chartered Accountant</option>
-    <option value="Business Owner">Business Owner</option>
-    <option value="Corporate">Corporate</option>
-    <option value="Jeweler / Diamond / Gold">Jeweler / Diamond / Gold</option>
-    <option value="Real Estate">Real Estate</option>
-    <option value="Stock Market / Wealth Advisor">Stock Market / Wealth Advisor</option>
-    <option value="Film Industry">Film Industry</option>
-    <option value="Media / Marketing">Media / Marketing</option>
-    <option value="IT Industry">IT Industry</option>
-    <option value="Manufacturing">Manufacturing</option>
-    <option value="Government Services / Politician">Government Services / Politician</option>
-  </select>
-</div>
+
+      <div class="col-md-6">
+        <label class="form-label">Occupation</label>
+        <select class="form-select select2-profession" name="profession">
+          <option value="">Select occupation</option>
+          <option value="Architect / Interior Designer">Architect / Interior Designer</option>
+          <option value="Banker / Finance">Banker / Finance</option>
+          <option value="Doctor">Doctor</option>
+          <option value="Lawyer">Lawyer</option>
+          <option value="Chartered Accountant">Chartered Accountant</option>
+          <option value="Business Owner">Business Owner</option>
+          <option value="Corporate">Corporate</option>
+          <option value="Jeweler / Diamond / Gold">Jeweler / Diamond / Gold</option>
+          <option value="Real Estate">Real Estate</option>
+          <option value="Stock Market / Wealth Advisor">Stock Market / Wealth Advisor</option>
+          <option value="Film Industry">Film Industry</option>
+          <option value="Media / Marketing">Media / Marketing</option>
+          <option value="IT Industry">IT Industry</option>
+          <option value="Manufacturing">Manufacturing</option>
+          <option value="Government Services / Politician">Government Services / Politician</option>
+        </select>
+      </div>
+      <div class="col-md-6">
+        <label class="form-label">Preferred Possession</label>
+        <select class="form-select select2-possession" name="preferred_possession">
+          <option value="">Select preferred possession</option>
+          <option value="Immediate">Immediate</option>
+          <option value="6 Months - 1 Year">6 Months - 1 Year</option>
+          <option value="1 - 2 Years">1 - 2 Years</option>
+          <option value="2+ Years">2+ Years</option>
+        </select>
+      </div>
 
     </div>
   </div>
 </div>
+
+<!-- Select2 JS Initialization -->
+<script>
+  $(document).ready(function () {
+    $('.select2-location').select2({ placeholder: "Select location", width: '100%' });
+    $('.select2-leadsource').select2({ placeholder: "Select lead source", width: '100%' });
+    $('.select2-project').select2({ placeholder: "Select project", width: '100%' });
+    $('.select2-ethnicity').select2({ placeholder: "Select ethnicity", width: '100%' });
+    $('.select2-profession').select2({ placeholder: "Select occupation", width: '100%' });
+    $('.select2-possession').select2({ placeholder: "Select preferred possession", width: '100%' });
+  });
+</script>
