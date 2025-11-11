@@ -55,7 +55,7 @@
     }
 
     .info-label {
-        font-size: 0.8rem;
+        font-size: 1rem;
         text-transform: uppercase;
         letter-spacing: 1px;
         color: #64748b;
@@ -77,7 +77,7 @@
         padding: 0.6rem 1.2rem;
         border-radius: 25px;
         font-weight: 600;
-        font-size: 0.85rem;
+        font-size: 1rem;
         display: inline-block;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     }
@@ -264,7 +264,7 @@
         }
 
         .badge-modern {
-            font-size: 0.8rem;
+            font-size: 1rem;
             padding: 0.5rem 1rem;
         }
 
@@ -306,16 +306,14 @@
                     <i class="fas fa-map-marker-alt text-white"></i>
                 </div>
                 <div>
-                    <h2 class="mb-2 fw-bold">{{ visit.client.name }} Site Visit Details</h2>
-                    <p class="mb-0 opacity-90 fs-5">
-                        {{ visit.project.name }} • {{ visit.visit_date.strftime('%B %d, %Y') }}
-                    </p>
+                    <h2 class="mb-2 fw-bold">{{ visit.client.name }} </h2>
+                 
                 </div>
             </div>
             {% if visit.client and visit.client.mobile %}
             <a href="{{ url_for('new_visit', mobile=visit.client.mobile) }}" class="btn btn-light btn-modern fw-bold">
                 <i class="fas fa-plus-circle me-2"></i>
-                Add Another Visit for {{ visit.client.name }}
+                Add Another Visit
             </a>
             {% endif %}
         </div>
@@ -339,6 +337,18 @@
                 </div>
                 <div class="card-body p-4 p-md-4">
                     <div class="info-grid">
+                            <!-- Project -->
+                        <div class="info-item">
+                            <div class="info-label">
+                                <i class="fas fa-building me-2"></i> Project
+                            </div>
+                            <div class="info-value">
+                                <span class="badge badge-modern text-white "
+                                    style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                                    <i class="fas fa-building me-2"></i>{{ visit.project.name }}
+                                </span>
+                            </div>
+                        </div>
                         <!-- Visit Date -->
                         <div class="info-item">
                             <div class="info-label">
@@ -368,18 +378,7 @@
                             {% endif %}
                         </div>
 
-                        <!-- Project -->
-                        <div class="info-item">
-                            <div class="info-label">
-                                <i class="fas fa-building me-2"></i> Project
-                            </div>
-                            <div class="info-value">
-                                <span class="badge badge-modern text-white"
-                                    style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-                                    <i class="fas fa-building me-2"></i>{{ visit.project.name }}
-                                </span>
-                            </div>
-                        </div>
+                    
 
                         <!-- Status -->
                         <div class="info-item">
